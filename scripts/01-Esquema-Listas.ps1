@@ -9,7 +9,7 @@
     - PRECIOS HORAS: solo la columna NOMBRE (no se leen ni muestran otras columnas ni datos).
     - Número de elementos de cada lista.
     - ARTICULOS ALMACEN: valores distintos de LUGAR, GRUPO y MEDIDA, con su recuento.
-    - Comprueba si existen los Jobs 1111 y 6969 y el proveedor STOCK synergy (T-03).
+    - Comprueba si existen los Jobs 1111 y 6969 y el proveedor STOCK synergy.
 
     Deja los resultados en archivos/ (no se suben al repositorio).
 #>
@@ -82,7 +82,7 @@ if ($interesan) {
     Write-Warning 'No se han encontrado las columnas LUGAR, GRUPO o MEDIDA por su nombre visible.'
 }
 
-# --- Jobs y proveedor especiales (T-03)
+# --- Jobs y proveedor especiales
 foreach ($job in '1111', '6969') {
     $p = Get-PnPListItem -List 'PROYECTOS' -Query "<View><Query><Where><Eq><FieldRef Name='Job_x0020_'/><Value Type='Text'>$job</Value></Eq></Where></Query></View>"
     if ($p) { Write-Host "Job $job existe (ESTADO0 = $(@($p)[0]['ESTADO0']))" -ForegroundColor Green }

@@ -161,6 +161,7 @@ Origen: exportación CSV de la lista SharePoint `PROYECTOS`.
 - Los importes se exportan con formato es-ES (`52.300,00 €`, `40,00%`).
 - TOTAL ESTIMATE aparece como `#NULL!` en muchas filas.
 - El campo TALLER mezcla valores `SI`/`NO` con fechas.
+- Jobs especiales del almacén (21/11/2026): `1111` «Regularizacion almacen» (ID 8649, `ABIERTO`, TALLER `NO`) y `6969` gastos del taller (`ABIERTO`). Los dos tienen que seguir `ABIERTO` para que la app no avise al usarlos.
 
 
 ---
