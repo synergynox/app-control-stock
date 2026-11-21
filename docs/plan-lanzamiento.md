@@ -4,7 +4,7 @@ Plan por fases. Cada fase termina cuando se cumplen sus criterios de salida y su
 
 | Fase | Contenido | Criterio de salida |
 |---|---|---|
-| **0 · Preparación** | Esquema de las listas (T-01, T-02), Jobs y proveedor especiales (T-03), índices (T-08), columnas y listas nuevas, flujos StockTotales y carga inicial (T-12) | `StockActual` coincide con la suma manual en una muestra de 20 artículos (V-0.x) |
+| **0 · Preparación** | Planchas, macizos y limpieza de datos (T-02), Job 1111 (T-03), índices (T-08), columnas y listas nuevas, flujos StockTotales y carga inicial (T-12) | `StockActual` coincide con la suma manual en una muestra de 20 artículos (V-0.x) |
 | **1 · Consulta** | `scrStock`, `scrArticulo` (solo lectura), `scrBuscar` y permisos | Todos ven el stock y los precios; los no admin no ven botones de edición |
 | **2 · Introducción** | Alta y edición de artículos, `scrEntrada`, `scrSalida` y `scrAlbaranes` | Administración mete una semana de albaranes y partes en la app, y los resultados coinciden con el método actual |
 | **3 · Recuento** | Flujo PDF, `scrRecuento` y regularización (T-13) | Un recuento real de un lugar, regularizado, deja el stock igual a lo contado |

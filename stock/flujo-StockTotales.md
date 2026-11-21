@@ -2,7 +2,7 @@
 
 Guía para montar en Power Automate (conectores estándar) los flujos que guardan en ARTICULOS ALMACEN el stock y el último precio de cada artículo (D-15). Sigue el patrón de `APP TALLER/totales/flujo-TallerTotales.md`.
 
-> **Pendiente de detallar** cuando se conozcan los nombres internos (T-01) y existan las columnas nuevas (T-12).
+> **Pendiente de detallar** cuando existan las columnas nuevas (T-12). Los nombres internos ya están en [estructura-tablas.md](../docs/estructura-tablas.md).
 
 ## Flujos
 

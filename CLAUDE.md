@@ -37,7 +37,7 @@ El stock y el último precio de cada artículo los guarda en `ARTICULOS ALMACEN`
 
 ## Reglas del proyecto
 
-- **Usa siempre el nombre interno** de las columnas de SharePoint, nunca el visible. En ENTRADAS ALMACEN, CANTIDAD ENTRADA es `CANTIDAD`, CANTIDAD SALIDA es `CANTIDADSALIDA`, MARGEN es `Campo1` y JOB NUMBER es `PROYECTO`. Consulta [estructura-tablas.md](docs/estructura-tablas.md).
+- **Usa siempre el nombre interno** de las columnas de SharePoint, nunca el visible. En ENTRADAS ALMACEN, CANTIDAD ENTRADA es `CANTIDAD`, CANTIDAD SALIDA es `CANTIDADSALIDA`, MARGEN es `Campo1` y JOB NUMBER es `PROYECTO`. En ARTICULOS ALMACEN están cruzados: LUGAR es `Campo1` y GRUPO es `LUGAR`. Consulta [estructura-tablas.md](docs/estructura-tablas.md).
 - En Power Automate (salidas del desencadenador y de «Obtener elementos»), los nombres internos que empiezan por `_` llevan delante `OData_`.
 - **ENTRADAS ALMACEN la comparte App Taller** (flujo `TallerTotalesMaterial`, repo `APP TALLER`). No cambies ni borres columnas existentes: solo se añaden.
 - **No copies datos de `PRECIOS HORAS`** (DNI, salarios, teléfonos, coste por hora) a la documentación ni a código de ejemplo. De esa lista solo se usa `NOMBRE`.

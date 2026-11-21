@@ -2,7 +2,7 @@
 
 Columnas que lee y escribe la app, columnas y listas nuevas, y fórmulas. La estructura de las listas existentes está en [estructura-tablas.md](estructura-tablas.md).
 
-> Los nombres internos de ARTICULOS ALMACEN, PROVEEDORES y de los lookups de ENTRADAS ALMACEN (`CODIGO`, `PROVEEDOR`, `TRABAJADOR`) están pendientes de leer (T-01). Mientras tanto se usan los nombres visibles entre comillas.
+> **Cuidado con ARTICULOS ALMACEN:** LUGAR es `Campo1` y GRUPO es `LUGAR`. Los lookups de ENTRADAS ALMACEN (`CODIGO`, `PROVEEDOR`, `TRABAJADOR`) tienen el mismo nombre interno que el visible.
 
 ## Listas
 
@@ -52,16 +52,16 @@ La leen todos; la editan solo negocio. Los correos no van al repositorio (T-05).
 | Columna | Interno | Entrada a almacén | Entrada directa a Job | Salida desde stock | Regularización |
 |---|---|---|---|---|---|
 | FECHA | `FECHA` | Fecha del albarán o factura | ídem | Fecha del parte | Fecha del recuento |
-| CODIGO | lookup (T-01) | Artículo | Artículo | Artículo | Artículo |
+| CODIGO | `CODIGO` (lookup) | Artículo | Artículo | Artículo | Artículo |
 | CANTIDAD ENTRADA | `CANTIDAD` | Cantidad | Cantidad | — | Si se contó de más |
 | CANTIDAD SALIDA | `CANTIDADSALIDA` | — | = entrada | Cantidad | Si se contó de menos |
 | PRECIO | `PRECIO` | Precio de compra | Precio de compra | Último precio | Último precio |
 | DESCUENTO | `DESCUENTO` | Del documento | ídem | 0 (el último precio ya es neto) | 0 |
 | ALBARAN | `ALBARAN` | Si hay | Si hay | — | — |
 | Nº FACTURA | `N_x00ba_FACTURA` | Si hay | Si hay | — | — |
-| PROVEEDOR | lookup (T-01) | Proveedor real | Proveedor real | `STOCK synergy` | `STOCK synergy` |
+| PROVEEDOR | `PROVEEDOR` (lookup) | Proveedor real | Proveedor real | `STOCK synergy` | `STOCK synergy` |
 | JOB NUMBER | `PROYECTO` | — | Job | Job | `1111` |
-| TRABAJADOR | lookup (T-01) | — | Si se sabe | Quien lo saca | — |
+| TRABAJADOR | `TRABAJADOR` (lookup) | — | Si se sabe | Quien lo saca | — |
 | MARGEN | `Campo1` | 0,40 | 0,40 | 0,40 | 0,40 |
 | EXTRA DESCRIPCION | `EXTRADESCRIPCION` | Opcional | Opcional | Opcional | «Regularización recuento dd/mm/aaaa» |
 
@@ -126,4 +126,5 @@ Ejemplo: plancha de hierro de 5 mm → 5 × 7,85 = 39,25 kg/m². Un trozo de 1 �
 
 - ENTRADAS ALMACEN tiene más de 32.000 filas y `Sum` no se delega en SharePoint. Por eso el stock se lee de `StockActual` (D-15).
 - El historial de un artículo y las búsquedas por proveedor o por Job filtran por el **Id del lookup**, que es delegable, pero el filtro necesita índices (T-08). Si un filtro devuelve más de 2.000 filas, se limita por rango de fechas.
-- ARTICULOS ALMACEN cabe en una colección si tiene menos de 2.000 artículos (T-01). Si tiene más, se carga por bloques, como `colHistorico` en App Taller.
+- ARTICULOS ALMACEN tiene **4.544 artículos** (21/11/2026), más del límite de 2.000 filas. No se carga entero en una colección: se busca con filtros delegables sobre `CODIGO` y `CONCEPTO`, que están indexadas, o se carga por bloques de ID como `colHistorico` en App Taller. Los artículos con LUGAR `descatalogado` o `CANCELADO` se pueden dejar fuera de las búsquedas por defecto.
+- PROVEEDORES (855) y PRECIOS HORAS (161) caben en una colección.

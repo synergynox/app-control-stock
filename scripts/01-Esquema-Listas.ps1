@@ -85,13 +85,13 @@ if ($interesan) {
 # --- Jobs y proveedor especiales (T-03)
 foreach ($job in '1111', '6969') {
     $p = Get-PnPListItem -List 'PROYECTOS' -Query "<View><Query><Where><Eq><FieldRef Name='Job_x0020_'/><Value Type='Text'>$job</Value></Eq></Where></Query></View>"
-    if ($p) { Write-Host "Job $job existe (ESTADO0 = $($p[0]['ESTADO0']))" -ForegroundColor Green }
+    if ($p) { Write-Host "Job $job existe (ESTADO0 = $(@($p)[0]['ESTADO0']))" -ForegroundColor Green }
     else    { Write-Host "Job $job NO existe" -ForegroundColor Red }
 }
 $campoNombre = Get-PnPField -List $Proveedores | Where-Object { $_.Title -like 'NOMBRE O RAZ*' } | Select-Object -First 1
 if ($campoNombre) {
     $s = Get-PnPListItem -List $Proveedores -Query "<View><Query><Where><Eq><FieldRef Name='$($campoNombre.InternalName)'/><Value Type='Text'>STOCK synergy</Value></Eq></Where></Query></View>"
-    if ($s) { Write-Host "Proveedor 'STOCK synergy' existe (ID $($s[0].Id))" -ForegroundColor Green }
+    if ($s) { Write-Host "Proveedor 'STOCK synergy' existe (ID $(@($s)[0].Id))" -ForegroundColor Green }
     else    { Write-Host "Proveedor 'STOCK synergy' NO encontrado con ese texto exacto" -ForegroundColor Red }
 }
 
