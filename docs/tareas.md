@@ -37,7 +37,7 @@ Las fases se describen en [plan-lanzamiento.md](plan-lanzamiento.md).
 | ID | Tarea | Responsable | Depende de | Bloquea | Estado |
 |---|---|---|---|---|---|
 | T-02 | Qué artículos son planchas o macizos (Jumec, torno, chapero), con su forma y medidas. Revisar también los datos de [estructura-tablas.md](estructura-tablas.md#valores-en-uso-21112026): LUGAR mezcla ubicaciones con estados (`descatalogado`, `CANCELADO`) y el 73 % está vacío; MEDIDA repite unidades (`kg`/`kgs`, `m`/`MTS`…); GRUPO tiene `CONSUMIBLE HABITUAL` y `CONSUMIBLES HABITUAL` | Desarrollo + Negocio | | T-12 | ⬜ |
-| T-08 | Índices en ENTRADAS ALMACEN para `CODIGO` y `PROVEEDOR`. `PROYECTO` ya está indexada | Desarrollo | | | ⬜ |
+| T-08 | Índices en ENTRADAS ALMACEN para `CODIGO` y `PROVEEDOR` (`PROYECTO` ya está indexada). Desde PnP falla por el umbral de 5.000 (21/11/2026): crearlos a mano en Configuración de la lista > Columnas indizadas > Crear un nuevo índice, y comprobar con `scripts/02-Indices.ps1` sin `-Confirmar` | Desarrollo | | | 🟡 |
 | T-12 | Crear las columnas nuevas de ARTICULOS ALMACEN y las listas MATERIALES y ADMIN ALMACEN (primero en una copia de prueba), montar los flujos StockTotales y hacer la carga inicial | Desarrollo | T-02, T-04 | | ⬜ |
 
 ## Fase 3 · Recuento

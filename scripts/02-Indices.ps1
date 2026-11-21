@@ -14,6 +14,10 @@
     En listas grandes SharePoint crea el índice en segundo plano: vuelve a lanzar el script
     (sin -Confirmar) al cabo de un rato para comprobar que aparece como indexado.
 
+    21/11/2026: con 32.250 elementos SharePoint rechaza el índice desde PnP con «supera el umbral
+    de vista de lista». Se crea a mano en Configuración de la lista > Columnas indizadas, que lo
+    encola en segundo plano. Este script sirve entonces para comprobar que ya están (sin -Confirmar).
+
 .EXAMPLE
     ./02-Indices.ps1              # simulación
     ./02-Indices.ps1 -Confirmar   # crea los índices
@@ -29,6 +33,7 @@ $indices = @(
 )
 
 $pendientes = 0
+$errores = 0
 foreach ($i in $indices) {
     $l = Get-PnPList -Identity $i.Lista -Includes ItemCount
     $f = Get-PnPField -List $l -Identity $i.Campo
@@ -43,6 +48,7 @@ foreach ($i in $indices) {
         else { Write-Host "  ~ $txt pedida; SharePoint la está creando en segundo plano" -ForegroundColor Yellow }
     }
     catch {
+        $errores++
         Write-Host "  ! $txt no se ha podido indexar: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "    Alternativa: Configuración de la lista > Columnas indizadas > Crear un nuevo índice." -ForegroundColor Red
     }
@@ -50,4 +56,5 @@ foreach ($i in $indices) {
 
 if ($pendientes -eq 0) { Write-Host "`nTodas las columnas están indexadas." -ForegroundColor Green }
 elseif (-not $Confirmar) { Write-Host "`nSimulación: no se ha cambiado nada. Para aplicar: ./02-Indices.ps1 -Confirmar" -ForegroundColor Yellow }
+elseif ($errores -gt 0) { Write-Host "`n$errores índice(s) no se han podido crear. Créalos a mano (ver arriba) y vuelve a lanzar el script sin -Confirmar." -ForegroundColor Red; exit 1 }
 else { Write-Host "`nHecho. Vuelve a lanzarlo sin -Confirmar más tarde para comprobar que salen indexadas." -ForegroundColor Green }
