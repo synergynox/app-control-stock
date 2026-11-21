@@ -37,7 +37,7 @@ Las fases se describen en [plan-lanzamiento.md](plan-lanzamiento.md).
 | ID | Tarea | Responsable | Depende de | Bloquea | Estado |
 |---|---|---|---|---|---|
 | T-02 | Qué artículos son planchas o macizos (Jumec, torno, chapero), con su forma y medidas. Revisar también los datos de [estructura-tablas.md](estructura-tablas.md#valores-en-uso-21112026): LUGAR mezcla ubicaciones con estados (`descatalogado`, `CANCELADO`) y el 73 % está vacío; MEDIDA repite unidades (`kg`/`kgs`, `m`/`MTS`…); GRUPO tiene `CONSUMIBLE HABITUAL` y `CONSUMIBLES HABITUAL` | Desarrollo + Negocio | | T-12 | ⬜ |
-| T-12 | Crear las columnas nuevas de ARTICULOS ALMACEN y las listas MATERIALES y ADMIN ALMACEN (primero en una copia de prueba), montar los flujos StockTotales y hacer la carga inicial | Desarrollo | T-02, T-04 | | ⬜ |
+| T-12 | Crear las columnas nuevas de ARTICULOS ALMACEN y las listas MATERIALES y ADMIN ALMACEN, montar los flujos StockTotales y hacer la carga inicial. **Hecho (21/11/2026):** copias de prueba `ARTICULOS ALMACEN PRUEBA`, `MATERIALES PRUEBA` y `ADMIN ALMACEN PRUEBA` con `scripts/03-Columnas-Listas.ps1`. **Falta:** copiar artículos de muestra a la prueba, montar y probar los flujos (V-0.1 a V-0.4), permisos de ADMIN ALMACEN (solo negocio edita), aplicar en las listas reales (`-Destino Real`) y la carga inicial | Desarrollo | T-02, T-04 | | 🟡 |
 
 ## Fase 3 · Recuento
 
