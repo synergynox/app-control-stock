@@ -13,7 +13,7 @@ Guía para montar en Power Automate (conectores estándar) los flujos que guarda
 
 ## Cálculo de un artículo (esquema)
 
-1. **Obtener elementos** de ENTRADAS ALMACEN con filtro `CODIGO/Id eq <id>` (necesita índice, T-08), con paginación activada.
+1. **Obtener elementos** de ENTRADAS ALMACEN con filtro `CODIGO/Id eq <id>` (`CODIGO` está indexada), con paginación activada.
 2. **Seleccionar** `CANTIDAD` y `CANTIDADSALIDA` (vacío = 0) y sumar con `xpath`, como en TallerTotales.
 3. **Último precio:** filtrar las filas con `CANTIDAD > 0` y proveedor distinto de `STOCK synergy`, ordenar por `FECHA` e `ID` de mayor a menor y tomar la primera: `PRECIO × (1 − DESCUENTO)` y proveedor.
 4. **Actualizar elemento** en ARTICULOS ALMACEN: `StockActual`, `UltimoPrecio`, `UltimoProveedor` y `FechaStock = utcNow()`.

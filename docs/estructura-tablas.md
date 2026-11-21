@@ -63,13 +63,13 @@ Hay además seis columnas que sobraron de una importación (`Tipo de archivo1`, 
 | Nº FACTURA | `N_x00ba_FACTURA` | Text (255) | | | Factura del proveedor |
 | ALBARAN | `ALBARAN` | Text (255) | | | |
 | FECHA | `FECHA` | DateTime (solo fecha) | Sí | | |
-| CODIGO | `CODIGO` | Lookup → ARTICULOS ALMACEN (`CODIGO`) | | | Ej: `8331412`. **No indexada** (T-08) |
+| CODIGO | `CODIGO` | Lookup → ARTICULOS ALMACEN (`CODIGO`) | | | Ej: `8331412`. Indexada |
 | CODIGO:CONCEPTO | `CODIGO_x003a_CONCEPTO` | Proyectado (`CONCEPTO`) | | | Descripción del artículo |
 | CODIGO:LUGAR | `CODIGO_x003a_LUGAR` | Proyectado (`Campo1`) | | | Ubicación. Ej: `descatalogado` |
 | CODIGO:MEDIDA | `CODIGO_x003a_MEDIDA` | Proyectado (`MEDIDA`) | | | Unidad. Ej: `pcs` |
 | CODIGO:GRUPO | `CODIGO_x003a_GRUPO` | Proyectado (`LUGAR`) | | | Ej: `PIEZAS RARAS`, `CONSUMIBLES` |
 | CANTIDAD SALIDA | `CANTIDADSALIDA` | Number | | | |
-| PROVEEDOR | `PROVEEDOR` | Lookup → PROVEEDORES (`NOMBRE_x0020_O_x0020_RAZ_x00d3_N`) | Sí | | Ej: `STOCK synergy`, `SUINBAL C.B.`. **No indexada** (T-08) |
+| PROVEEDOR | `PROVEEDOR` | Lookup → PROVEEDORES (`NOMBRE_x0020_O_x0020_RAZ_x00d3_N`) | Sí | | Ej: `STOCK synergy`, `SUINBAL C.B.`. Indexada |
 | JOB NUMBER | `PROYECTO` | Lookup → PROYECTOS (`Job_x0020_`) | | | Job al que se imputa la salida. Indexada |
 | PROYECTO:ESTADO | `PROYECTO_x003a_ESTADO` | Proyectado (`ESTADO0`) | | | |
 | PROYECTO:Descripción | `PROYECTO_x003a_Descripci_x00f3_n` | Proyectado (`Descripci_x00f3_n`) | | | |
@@ -90,7 +90,7 @@ Hay además seis columnas que sobraron de una importación (`Tipo de archivo1`, 
 - Nombres internos que no coinciden: CANTIDAD ENTRADA → `CANTIDAD`, ENTRADA COSTE → `TOTAL_x0020_COSTE`, MARGEN → `Campo1`, JOB NUMBER → `PROYECTO`.
 - Los lookups `CODIGO`, `PROVEEDOR` y `TRABAJADOR` tienen el mismo nombre interno que el visible.
 - Esta lista la comparte App Taller (flujo `TallerTotalesMaterial`). No se cambian columnas existentes.
-- Solo está indexada `PROYECTO`. Faltan `CODIGO` y `PROVEEDOR` (T-08).
+- Indexadas: `CODIGO`, `PROVEEDOR` y `PROYECTO` (21/11/2026). Con más de 5.000 elementos, SharePoint no deja crear índices desde PnP: se crean a mano en Configuración de la lista > Columnas indizadas y se comprueban con `scripts/02-Indices.ps1`.
 
 ---
 

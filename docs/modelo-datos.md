@@ -125,6 +125,6 @@ Ejemplo: plancha de hierro de 5 mm → 5 × 7,85 = 39,25 kg/m². Un trozo de 1 �
 ## Rendimiento y delegación
 
 - ENTRADAS ALMACEN tiene más de 32.000 filas y `Sum` no se delega en SharePoint. Por eso el stock se lee de `StockActual` (D-15).
-- El historial de un artículo y las búsquedas por proveedor o por Job filtran por el **Id del lookup**, que es delegable, pero el filtro necesita índices (T-08). Si un filtro devuelve más de 2.000 filas, se limita por rango de fechas.
+- El historial de un artículo y las búsquedas por proveedor o por Job filtran por el **Id del lookup**, que es delegable. `CODIGO`, `PROVEEDOR` y `PROYECTO` están indexadas (21/11/2026). Si un filtro devuelve más de 2.000 filas, se limita por rango de fechas.
 - ARTICULOS ALMACEN tiene **4.544 artículos** (21/11/2026), más del límite de 2.000 filas. No se carga entero en una colección: se busca con filtros delegables sobre `CODIGO` y `CONCEPTO`, que están indexadas, o se carga por bloques de ID como `colHistorico` en App Taller. Los artículos con LUGAR `descatalogado` o `CANCELADO` se pueden dejar fuera de las búsquedas por defecto.
 - PROVEEDORES (855) y PRECIOS HORAS (161) caben en una colección.

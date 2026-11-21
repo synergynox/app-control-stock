@@ -1,7 +1,7 @@
 #Requires -Version 7.2
 <#
 .SYNOPSIS
-    Índices de columna en ENTRADAS ALMACEN para las búsquedas de la app (T-08).
+    Índices de columna en ENTRADAS ALMACEN para las búsquedas de la app.
 
 .DESCRIPTION
     Indexa los lookups por los que filtran el historial del artículo y la búsqueda por proveedor,
