@@ -1,0 +1,5 @@
+# Exportaciones locales de SharePoint; solo sirven para documentar
+archivos/
+.claude/
+.env
+scripts/config.local*
