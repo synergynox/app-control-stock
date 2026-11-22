@@ -26,7 +26,7 @@ Datos generales:
 
 **Campos ocultos:** en **Obtener elementos**, la **Consulta de filtro** y el **Recuento superior** (en el diseñador nuevo, **Primeros puestos**) están en **Parámetros avanzados**. La **Paginación** está en la pestaña **Configuración** de la acción.
 
-En las expresiones, los nombres de las acciones van con `_` en lugar de espacios. Si renombras una acción de otra forma, cambia también las expresiones que la usan. Recuerda que los nombres internos que empiezan por `_` llevan delante `OData_` (en estos flujos no hay ninguno).
+En las expresiones, los nombres de las acciones van con `_` en lugar de espacios. **Renombra cada acción en cuanto la añadas** (pulsa la acción y edita el título de arriba del panel), con el nombre exacto de la guía y **sin tildes**. Si una acción se queda como «Obtener elementos» o «Redactar», al guardar sale el error «contienen una referencia no válida a…» en la acción que la usa. Recuerda que los nombres internos que empiezan por `_` llevan delante `OData_` (en estos flujos no hay ninguno).
 
 ## 0. Solución y variables de entorno
 
