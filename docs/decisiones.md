@@ -23,6 +23,7 @@ Registro de las decisiones de diseño de la App Control Stock y de los puntos qu
 | D-15 | 2026-11-21 | El stock y el último precio no se calculan en la app. Los guarda en ARTICULOS ALMACEN un flujo estándar que se dispara con cada fila de ENTRADAS ALMACEN, más un recálculo nocturno | ENTRADAS ALMACEN tiene más de 32.000 filas y `Sum` no se delega. Es el mismo patrón que D-17 de App Taller |
 | D-16 | 2026-11-21 | El PDF se genera como en presupuestos: la app monta el HTML y un flujo lo convierte a PDF con OneDrive «Convertir archivo» | Es estándar y ya está probado (D-39 de `prueba-presupuesto`) |
 | D-17 | 2026-11-21 | Repo propio (`APP CONTROL STOCK`, GitHub `synergynox/app-control-stock`) con el mismo método que `prueba-presupuesto` y `APP TALLER` | Proyecto independiente |
+| D-18 | 2026-11-22 | El artículo `0000` («CONCEPTO 2», 5.200 movimientos) cuenta para el stock como cualquier otro artículo | Viene del traspaso de los artículos a SharePoint. Lo confirma negocio |
 
 ## Puntos abiertos
 

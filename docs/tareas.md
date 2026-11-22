@@ -13,7 +13,7 @@ Lista **única** de tareas pendientes de la App Control Stock. Los demás docume
 
 | Bloque | Pendientes |
 |---|---|
-| [A. Decisiones y datos de negocio](#a-decisiones-y-datos-de-negocio) | 6 |
+| [A. Decisiones y datos de negocio](#a-decisiones-y-datos-de-negocio) | 5 |
 | [Fase 0 · Preparación](#fase-0--preparación) | 2 |
 | [Fase 3 · Recuento](#fase-3--recuento) | 1 |
 | [Fase 5 · Automatización](#fase-5--automatización) | 2 |
@@ -31,7 +31,6 @@ Las fases se describen en [plan-lanzamiento.md](plan-lanzamiento.md).
 | T-06 | Rellenar `StockMinimo` en los artículos que necesiten aviso | Administración | T-12 | | ⬜ |
 | T-07 | Calidad del stock histórico: ¿el primer recuento sirve de punto de partida, con una regularización inicial al 1111? | Negocio | T-12 | | ⬜ |
 | T-11 | ¿Cómo llegan hoy los proveedores de Contasimple a la lista PROVEEDORES (a mano, importación…)? | Negocio | | T-09 | ⬜ |
-| T-14 | Artículo genérico `0000` (concepto «CONCEPTO 2», sin MEDIDA, 5.200 movimientos): ¿se deja fuera del stock, del PDF del recuento y de los avisos? ¿Hay más artículos genéricos así? | Negocio | | | ⬜ |
 
 ## Fase 0 · Preparación
 

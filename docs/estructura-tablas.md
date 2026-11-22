@@ -45,7 +45,7 @@ Hay además seis columnas que sobraron de una importación (`Tipo de archivo1`, 
 - LUGAR mezcla ubicaciones con estados (`descatalogado`, `CANCELADO`), y el 73 % de los artículos no tiene lugar (T-02).
 - MEDIDA tiene la misma unidad escrita de varias formas: `kg`/`kgs`, `m`/`MTS`, `pcs`/`psc`, `l`/`LTS`/`I` (T-02).
 - GRUPO tiene `CONSUMIBLE HABITUAL` y `CONSUMIBLES HABITUAL` (T-02).
-- El artículo `0000` (concepto «CONCEPTO 2», sin MEDIDA) es genérico: tiene 5.200 movimientos, con la descripción en EXTRA DESCRIPCION (T-14). Le sigue `8110` (disco de velcro), con 2.746.
+- El artículo `0000` (concepto «CONCEPTO 2», sin MEDIDA) viene del traspaso de los artículos a SharePoint y tiene 5.200 movimientos. Cuenta para el stock como cualquier otro (D-18). Le sigue `8110` (disco de velcro), con 2.746.
 - 2.812 artículos tienen movimientos y 1.732 no tienen ninguno (21/11/2026).
 - Con más de 2.000 artículos, la app no los puede cargar de una vez en una colección (ver [modelo-datos.md](modelo-datos.md#rendimiento-y-delegación)).
 
