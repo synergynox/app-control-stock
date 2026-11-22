@@ -67,7 +67,12 @@ Quita los espacios y dobla las comillas simples, para que un código con `'` no 
 
 **SharePoint > Obtener elementos**. Renómbralo `Leer articulo`.
 - Nombre de la lista: `ARTICULOS ALMACEN`, del desplegable. Aquí sí es la lista real, porque solo se lee.
-- Consulta de filtro: escribe `CODIGO eq '`, pulsa el **rayo** y elige la salida de **Codigo filtro**, y cierra con `'`. Queda `CODIGO eq '[Codigo filtro]'`, con la ficha azul en medio. No lo pegues entero en **fx**.
+- Consulta de filtro, en tres partes:
+  1. a mano: `CODIGO eq '` (con la comilla simple al final);
+  2. **rayo** > debajo del título **Codigo filtro**, elige **Salidas**. El título morado «Codigo filtro» no se puede elegir: es la línea **Salidas** de debajo. Si no aparece, pulsa **fx** y pega `outputs('Codigo_filtro')`;
+  3. a mano: `'`.
+
+  Queda `CODIGO eq '[Salidas]'`, con la ficha azul en medio. No lo pegues entero en **fx**.
 - Recuento superior: `1`
 
 ### 1.4 Si el artículo no existe, terminar
@@ -133,7 +138,7 @@ Quita los espacios y dobla las comillas simples, para que un código con `'` no 
 
 1. **SharePoint > Obtener elementos**. Renómbralo `Fila destino`.
    - Nombre de la lista: variable de entorno **Lista Articulos**
-   - Consulta de filtro: `CODIGO eq '[Codigo filtro]'`, montado igual que en `Leer articulo` (paso 1.3)
+   - Consulta de filtro: `CODIGO eq '[Salidas de Codigo filtro]'`, montado igual que en `Leer articulo` (paso 1.3)
    - Recuento superior: `1`
 2. **Redactar**. Renómbralo `Cuerpo`. Expresión:
 
