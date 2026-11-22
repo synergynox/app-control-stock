@@ -46,8 +46,9 @@ Antes de regularizar hay que esperar a que el flujo StockTotales haya recalculad
 
 ### Recálculo del stock (flujo StockTotales, D-15)
 
-- **`StockTotalesMovimiento`**: se dispara al crear o modificar una fila de ENTRADAS ALMACEN y recalcula el artículo de esa fila. Si la modificación cambia el artículo, el anterior queda pendiente hasta la noche.
-- **`StockTotalesNoche`**: recalcula todos los artículos cada noche. Recoge los borrados y los cambios de artículo.
+- **`StockTotalesArticulo`**: flujo secundario que recalcula un artículo. Lo llaman los otros flujos y, más adelante, la app antes de regularizar (T-13).
+- **`StockTotalesMovimiento`**: se dispara al crear o modificar una fila de ENTRADAS ALMACEN y recalcula el artículo de esa fila. Si la modificación cambia el artículo, el anterior queda pendiente hasta el siguiente recálculo completo.
+- **Recálculo completo**: recoge los borrados y los cambios de artículo. No puede ser un flujo nocturno sobre los 4.544 artículos, porque superaría el límite diario de solicitudes de Microsoft 365. Falta decidir cómo se hace (T-15). Para las pruebas está `StockTotalesLote`, que se lanza a mano.
 
 La guía para montarlos está en [stock/flujo-StockTotales.md](../stock/flujo-StockTotales.md).
 

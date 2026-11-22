@@ -9,7 +9,7 @@ Pruebas por fase. Si cambia una regla, actualiza sus pruebas. Las pruebas de esc
 | V-0.1 | Ejecutar la carga inicial y comparar `StockActual` de 20 artículos con Σ `CANTIDAD` − Σ `CANTIDADSALIDA` sacado de un CSV exportado | Coinciden todos |
 | V-0.2 | `UltimoPrecio` de 10 artículos con compras de varios proveedores y salidas de STOCK synergy | Es el neto de la última compra real |
 | V-0.3 | Crear una fila de entrada de prueba | `StockActual` y `FechaStock` se actualizan en menos de 5 min |
-| V-0.4 | Borrar la fila de prueba y lanzar `StockTotalesNoche` | El stock vuelve al valor anterior |
+| V-0.4 | Borrar la fila de prueba y lanzar `StockTotalesLote` | El stock vuelve al valor anterior |
 | V-0.5 | Después de los cambios, abrir App Taller | Los totales de material de los Jobs no cambian |
 
 ## Fase 1 · Consulta
