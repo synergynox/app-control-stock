@@ -24,6 +24,7 @@ Registro de las decisiones de diseño de la App Control Stock y de los puntos qu
 | D-16 | 2026-11-21 | El PDF se genera como en presupuestos: la app monta el HTML y un flujo lo convierte a PDF con OneDrive «Convertir archivo» | Es estándar y ya está probado (D-39 de `prueba-presupuesto`) |
 | D-17 | 2026-11-21 | Repo propio (`APP CONTROL STOCK`, GitHub `synergynox/app-control-stock`) con el mismo método que `prueba-presupuesto` y `APP TALLER` | Proyecto independiente |
 | D-18 | 2026-11-22 | El artículo `0000` («CONCEPTO 2», 5.200 movimientos) cuenta para el stock como cualquier otro artículo | Viene del traspaso de los artículos a SharePoint. Lo confirma negocio |
+| D-19 | 2026-11-22 | No hay flujo nocturno de stock (cambia D-15). En ENTRADAS ALMACEN **no se borran filas ni se cambia el CODIGO**: los errores se corrigen con una fila nueva que compense, con nota en EXTRA DESCRIPCION. Recálculo completo con un script PnP desde el PC a final de año y antes de cada recuento. La ficha del artículo tiene un botón «Recalcular» | El nocturno con 4.544 artículos serían unas 68.000 acciones por noche, y Microsoft 365 permite unas 6.000 al día. Sin borrados ni cambios de código, el flujo de cada movimiento basta: cualquier movimiento nuevo del artículo vuelve a sumar todas sus filas |
 
 ## Puntos abiertos
 

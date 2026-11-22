@@ -4,9 +4,11 @@ Guardan en ARTICULOS ALMACEN el stock y el último precio de cada artículo (`St
 
 | Flujo | Cuándo se ejecuta | Qué hace |
 |---|---|---|
-| `StockTotalesArticulo` | Lo llaman los otros dos (y más adelante la app, T-13) | Recalcula **un** artículo y guarda su stock y último precio. Es el único que calcula |
+| `StockTotalesArticulo` | Lo llaman los otros dos, el botón «Recalcular» de la app y, más adelante, la regularización (T-13) | Recalcula **un** artículo y guarda su stock y último precio. Es el único que calcula |
 | `StockTotalesMovimiento` | Al crear o modificar una fila de ENTRADAS ALMACEN | Llama a `StockTotalesArticulo` con el código de esa fila |
-| `StockTotalesLote` | A mano | Llama a `StockTotalesArticulo` para todos los artículos de la lista de destino. Solo para las pruebas: en la lista real serían demasiadas ejecuciones (T-15) |
+| `StockTotalesLote` | A mano | Llama a `StockTotalesArticulo` para todos los artículos de la lista de destino. Solo para las pruebas: en la lista real serían demasiadas ejecuciones |
+
+No hay flujo nocturno (D-19). El recálculo completo de la lista real lo hace el script `06-Recalcular-Stock.ps1` (T-16).
 
 Los flujos calculan con las reglas de [modelo-datos.md](../docs/modelo-datos.md#fórmulas):
 - `StockActual = Σ CANTIDAD − Σ CANTIDADSALIDA` de todas las filas del artículo (vacío = 0). Puede ser negativo.
@@ -222,10 +224,10 @@ Compara `StockActual`, `UltimoPrecio` y `UltimoProveedor` de ARTICULOS ALMACEN P
 
 ## Consumo
 
-Cada recálculo de un artículo son unas 15 acciones. Con los movimientos de un día normal, el flujo queda muy por debajo del límite diario de solicitudes de una licencia Microsoft 365, que es de unas 6.000. En cambio, recalcular los 4.544 artículos serían unas 68.000 acciones: por eso no hay recálculo nocturno completo en Power Automate (T-15).
+Cada recálculo de un artículo son unas 15 acciones. Con los movimientos de un día normal, el flujo queda muy por debajo del límite diario de solicitudes de una licencia Microsoft 365, que es de unas 6.000. En cambio, recalcular los 4.544 artículos serían unas 68.000 acciones: por eso no hay recálculo nocturno en Power Automate, y el completo se hace con un script (D-19).
 
 ## Limitaciones conocidas
 
-- Si se **borra** una fila de ENTRADAS ALMACEN, o se le cambia el CODIGO, el artículo afectado no se corrige hasta el siguiente recálculo completo (T-15). SharePoint no dispara flujos al borrar, y al cambiar el código el desencadenador solo da el código nuevo.
+- Si se **borra** una fila de ENTRADAS ALMACEN, o se le cambia el CODIGO, el artículo afectado no se corrige hasta su siguiente movimiento, el botón «Recalcular» o el recálculo completo. SharePoint no dispara flujos al borrar, y al cambiar el código el desencadenador solo da el código nuevo. Por eso no se borran filas ni se cambian códigos: los errores se corrigen con una fila nueva (D-19).
 - Guardar el stock cambia el **Modificado** y crea una versión del artículo. Por eso se escribe solo cuando algo cambia.
 - Antes de regularizar un recuento hay que asegurarse de que el stock está al día (T-13).

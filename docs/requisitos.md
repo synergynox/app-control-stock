@@ -42,6 +42,9 @@ Todos los perfiles.
 - **Historial de compras** (D-9): las filas con entrada que no son de STOCK synergy, con fecha, proveedor, albarán, factura, cantidad, precio, descuento y precio neto. Ordenado por fecha, de la más reciente a la más antigua, y con filtro por proveedor.
 - Últimos movimientos de salida, con fecha, Job, cantidad y trabajador.
 - **Calculadora kg ↔ medida** para planchas y macizos (D-4).
+- Botón **«Recalcular»** (D-19): llama al flujo `StockTotalesArticulo` y vuelve a calcular el stock y el último precio del artículo con todas sus filas. Sirve si alguna vez el flujo automático falla.
+
+**Aceptación:** después de pulsar «Recalcular», el stock coincide con Σ `CANTIDAD` − Σ `CANTIDADSALIDA` del artículo y `FechaStock` es la de ese momento.
 
 ### CU-03 · Alta y edición de artículo
 
@@ -120,6 +123,8 @@ Solo administración.
 
 - Los retales no se controlan: el stock puede ser negativo.
 - La app no cambia columnas existentes de ENTRADAS ALMACEN, que App Taller también usa.
+- **No se borran movimientos ni se cambia su CODIGO** (D-19). La app no tiene botón de borrar y no deja cambiar el artículo de una fila guardada. Un error se corrige con una fila nueva que lo compense (por ejemplo, una entrada de 10 para anular una salida de 10 mal puesta), con «Corrección de la fila del dd/mm/aaaa» en EXTRA DESCRIPCION.
+- **Recálculo completo** del stock con el script `06-Recalcular-Stock.ps1` (T-16) a final de año y antes de cada recuento (D-19).
 
 ## Fuera de alcance de la versión 1
 

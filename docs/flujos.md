@@ -44,11 +44,16 @@ flowchart LR
 
 Antes de regularizar hay que esperar a que el flujo StockTotales haya recalculado (`FechaStock` posterior a la última fila del artículo). Si no, la diferencia se calcula sobre un stock viejo (T-13).
 
-### Recálculo del stock (flujo StockTotales, D-15)
+### Recálculo del stock (flujo StockTotales, D-15 y D-19)
 
-- **`StockTotalesArticulo`**: flujo secundario que recalcula un artículo. Lo llaman los otros flujos y, más adelante, la app antes de regularizar (T-13).
-- **`StockTotalesMovimiento`**: se dispara al crear o modificar una fila de ENTRADAS ALMACEN y recalcula el artículo de esa fila. Si la modificación cambia el artículo, el anterior queda pendiente hasta el siguiente recálculo completo.
-- **Recálculo completo**: recoge los borrados y los cambios de artículo. No puede ser un flujo nocturno sobre los 4.544 artículos, porque superaría el límite diario de solicitudes de Microsoft 365. Falta decidir cómo se hace (T-15). Para las pruebas está `StockTotalesLote`, que se lanza a mano.
+- **`StockTotalesArticulo`**: flujo secundario que recalcula un artículo con todas sus filas. Lo llaman el flujo de movimientos, el botón «Recalcular» de la ficha del artículo y, más adelante, la app antes de regularizar (T-13).
+- **`StockTotalesMovimiento`**: se dispara al crear o modificar una fila de ENTRADAS ALMACEN y recalcula el artículo de esa fila.
+- **No hay flujo nocturno** (D-19). Como no se borran filas ni se cambia su CODIGO, el flujo de cada movimiento basta. Si alguna vez falla, el siguiente movimiento del artículo o el botón «Recalcular» lo corrigen.
+- **Recálculo completo** con el script `06-Recalcular-Stock.ps1` (T-16), desde el PC, a final de año y antes de cada recuento. Para las pruebas está además `StockTotalesLote`, que se lanza a mano.
+
+### Corrección de un movimiento (D-19)
+
+No se borra la fila ni se cambia su artículo. Se añade una fila nueva que compense el error: una entrada para anular una salida mal puesta, o una salida para anular una entrada, con el mismo artículo, Job y precio, y «Corrección de la fila del dd/mm/aaaa» en EXTRA DESCRIPCION.
 
 La guía para montarlos está en [stock/flujo-StockTotales.md](../stock/flujo-StockTotales.md).
 

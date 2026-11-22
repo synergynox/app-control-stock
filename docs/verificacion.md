@@ -22,6 +22,7 @@ Pruebas por fase. Si cambia una regla, actualiza sus pruebas. Las pruebas de esc
 | V-1.4 | Historial de un artículo, filtrado por proveedor | Solo compras de ese proveedor, sin STOCK synergy |
 | V-1.5 | Entrar con una cuenta que no está en ADMIN ALMACEN | No hay botones de alta, entrada, salida, albaranes ni regularizar |
 | V-1.6 | Buscar por el Job 6969 y por un proveedor con muchas filas | Salen todas las filas del rango de fechas, sin aviso de delegación |
+| V-1.7 | En la copia de prueba, cambiar a mano `StockActual` de un artículo y pulsar «Recalcular» en su ficha | Vuelve al valor correcto y `FechaStock` es la de ese momento |
 
 ## Fase 2 · Introducción
 
@@ -35,6 +36,7 @@ Pruebas por fase. Si cambia una regla, actualiza sus pruebas. Las pruebas de esc
 | V-2.6 | Salida que deja el stock en negativo | Aviso; guarda tras confirmar; stock negativo |
 | V-2.7 | Salida de plancha por medida (1 × 0,5 m, 5 mm, hierro) | 19,63 kg |
 | V-2.8 | Asignar factura a dos albaranes de un proveedor | Todas sus filas tienen el nº de factura; los de otros proveedores no cambian |
+| V-2.9 | Abrir un movimiento guardado | No hay botón de borrar y no se puede cambiar el artículo |
 
 ## Fase 3 · Recuento
 
