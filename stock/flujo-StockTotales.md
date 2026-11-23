@@ -117,15 +117,27 @@ Quita los espacios y dobla las comillas simples, para que un código con `'` no 
 1. **Operación de datos > Filtrar matriz**. Renómbralo `Compras reales`.
    - Desde: `body('Movimientos')?['value']`
    - Condición: en el primer valor, por **fx**, `and(greater(float(coalesce(item()?['CANTIDAD'], 0)), 0), not(equals(item()?['PROVEEDOR']?['Id'], 626)))`; operador **es igual que**; en el segundo valor, por **fx**, `true`
-2. **Seleccionar**. Renómbralo `Claves compras`. Desde: `body('Compras_reales')`. En Asignar, en modo **clave / valor** (el normal), tres filas, con los valores por **fx**:
+2. **Seleccionar**. Renómbralo `Claves compras`. Desde: la ficha **Body** de **Compras reales** (en Vista de código: `@body('Compras_reales')`). En Asignar, en modo **clave / valor** (el normal), tres filas, con los valores por **fx**:
 
-   | Clave | Valor (expresión) |
-   |---|---|
-   | `k` | `concat(item()?['FECHA'], '\|', formatNumber(item()?['ID'], '0000000000'))` |
-   | `precio` | `float(formatNumber(mul(float(coalesce(item()?['PRECIO'], 0)), sub(1, float(coalesce(item()?['DESCUENTO'], 0)))), 'F4', 'en-US'))` |
-   | `proveedor` | `item()?['PROVEEDOR']?['Value']` |
+   Clave `k`:
 
-   `k` junta la fecha y el ID con ceros delante (`2026-03-04T23:00:00Z|0000031250`), así que ordenar por `k` es ordenar por fecha y, si empatan, por ID. En la tabla, `\|` es solo `|`.
+   ```
+   concat(item()?['FECHA'], '|', formatNumber(item()?['ID'], '0000000000'))
+   ```
+
+   Clave `precio`:
+
+   ```
+   float(formatNumber(mul(float(coalesce(item()?['PRECIO'], 0)), sub(1, float(coalesce(item()?['DESCUENTO'], 0)))), 'F4', 'en-US'))
+   ```
+
+   Clave `proveedor`:
+
+   ```
+   item()?['PROVEEDOR']?['Value']
+   ```
+
+   `k` junta la fecha y el ID con ceros delante (`2026-03-04T23:00:00Z|0000031250`), así que ordenar por `k` es ordenar por fecha y, si empatan, por ID.
 3. **Redactar**. Renómbralo `Ultima compra`. Expresión:
 
    ```
