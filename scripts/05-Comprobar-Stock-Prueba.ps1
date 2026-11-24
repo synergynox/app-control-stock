@@ -65,6 +65,6 @@ $filas | Format-Table -AutoSize | Out-Host
 if ($fallos -eq 0) { Write-Host "Los $($esperado.Count) artículos coinciden." -ForegroundColor Green }
 else {
     Write-Host "$fallos de $($esperado.Count) artículos no coinciden." -ForegroundColor Red
-    Write-Host "Si ha habido movimientos nuevos de esos artículos, recalcula el esperado con ./04-Copiar-Articulos-Prueba.ps1 (sin -Confirmar)." -ForegroundColor Yellow
+    Write-Host "Si ha habido movimientos nuevos de esos artículos, recalcula el esperado con ./04-Copiar-Articulos-Prueba.ps1 -Recalcular." -ForegroundColor Yellow
     exit 1
 }

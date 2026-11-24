@@ -14,7 +14,11 @@
       E  En kg (MACIZOS, CHAPA, PLETINAS)                                                 3
       F  Con muchos movimientos                                                           2
       G  Sin ningún movimiento (stock 0)                                                  1
-    La elección es siempre la misma (semilla fija). Con -Codigos se añaden artículos concretos.
+    La elección depende de los movimientos que haya ese día: con movimientos nuevos puede salir otra.
+    Con -Codigos se añaden artículos concretos.
+
+    Con -Recalcular no elige nada: recalcula el esperado de los artículos que ya están en
+    ARTICULOS ALMACEN PRUEBA y no copia nada. Úsalo cuando haya movimientos nuevos.
 
     Copia CODIGO, CONCEPTO, CONCEPTO2, Campo1 (LUGAR), LUGAR (GRUPO), LUGAR0 y MEDIDA. No rellena
     StockActual ni UltimoPrecio: eso lo hará el flujo. Los códigos que ya están en la prueba se saltan.
@@ -30,10 +34,12 @@
     ./04-Copiar-Articulos-Prueba.ps1                          # simulación + CSV
     ./04-Copiar-Articulos-Prueba.ps1 -Confirmar
     ./04-Copiar-Articulos-Prueba.ps1 -Codigos 8331412 -Confirmar
+    ./04-Copiar-Articulos-Prueba.ps1 -Recalcular             # solo el CSV de los que ya están
 #>
 param(
     [string[]] $Codigos = @(),
-    [switch] $Confirmar
+    [switch] $Confirmar,
+    [switch] $Recalcular
 )
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\Conectar.ps1"
@@ -104,6 +110,17 @@ foreach ($id in $articulos.Keys) { $resumen[$id] = Get-Resumen $id }
 
 # --- 4. Elección -------------------------------------------------------------------------------
 $elegidos = [Collections.Generic.Dictionary[int,string]]::new()   # IdArt -> categoría (orden de inserción)
+$yaEstan = @{}
+Get-PnPListItem -List $Destino -PageSize 2000 -Fields CODIGO | ForEach-Object { $yaEstan["$($_['CODIGO'])".Trim()] = $true }
+if ($Recalcular) {
+    $porCodigo = @{}
+    foreach ($a in $articulos.Values) { $porCodigo["$($a['CODIGO'])".Trim()] = $a.Id }
+    foreach ($c in $yaEstan.Keys) {
+        if ($porCodigo.ContainsKey($c)) { $elegidos[$porCodigo[$c]] = 'En la prueba' }
+        else { Write-Warning "El código $c de $Destino no existe en $Origen." }
+    }
+    Write-Host "`nRecalcular: $($elegidos.Count) artículos de $Destino" -ForegroundColor Cyan
+} else {
 $aleatorio = [Random]::new(20261121)
 function Add-Categoria([string]$Cat, [int]$N, [scriptblock]$Filtro) {
     $cand = @($resumen.Values | Where-Object { -not $elegidos.ContainsKey($_.IdArt) } | Where-Object $Filtro | Sort-Object IdArt)
@@ -126,6 +143,7 @@ Add-Categoria 'G sin movimientos'         1 { $_.Filas -eq 0 }
 foreach ($c in $Codigos) {
     $a = $articulos.Values | Where-Object { "$($_['CODIGO'])".Trim() -eq $c } | Select-Object -First 1
     if ($a) { $elegidos[$a.Id] = 'H pedido a mano' } else { Write-Warning "El código $c no existe en $Origen." }
+}
 }
 
 # --- 5. CSV con lo esperado --------------------------------------------------------------------
@@ -150,8 +168,7 @@ $filasCsv | Format-Table Categoria, CODIGO, MEDIDA, Filas, StockEsperado, Ultimo
 Write-Host "Esperado guardado en $csv" -ForegroundColor Green
 
 # --- 6. Copia a la prueba ----------------------------------------------------------------------
-$yaEstan = @{}
-Get-PnPListItem -List $Destino -PageSize 2000 -Fields CODIGO | ForEach-Object { $yaEstan["$($_['CODIGO'])".Trim()] = $true }
+if ($Recalcular) { return }
 $nuevos = @($elegidos.Keys | Where-Object { -not $yaEstan["$($articulos[$_]['CODIGO'])".Trim()] })
 Write-Host "`n$($elegidos.Count) elegidos, $($elegidos.Count - $nuevos.Count) ya están en $Destino, $($nuevos.Count) por copiar" -ForegroundColor Cyan
 

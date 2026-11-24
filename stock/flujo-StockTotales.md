@@ -237,11 +237,21 @@ Mientras la variable apunte a la prueba, el flujo se ejecuta con cada movimiento
 
 ## Comprobación
 
+Desde la carpeta del proyecto, no desde `C:\Windows\System32`:
+
 ```powershell
+cd "C:\Users\arman\proyectos\APP CONTROL STOCK"
 ./scripts/05-Comprobar-Stock-Prueba.ps1
 ```
 
-Compara `StockActual`, `UltimoPrecio` y `UltimoProveedor` de ARTICULOS ALMACEN PRUEBA con `archivos/esperado-ARTICULOS_PRUEBA.csv` y dice cuáles no coinciden. Si en ENTRADAS ALMACEN ha habido movimientos de esos artículos desde que se generó el CSV, vuelve a lanzar `04-Copiar-Articulos-Prueba.ps1` (sin `-Confirmar`) para recalcular el esperado.
+Compara `StockActual`, `UltimoPrecio` y `UltimoProveedor` de ARTICULOS ALMACEN PRUEBA con `archivos/esperado-ARTICULOS_PRUEBA.csv` y dice cuáles no coinciden. Si en ENTRADAS ALMACEN ha habido movimientos de esos artículos desde que se generó el CSV (pasa a menudo con `8110`), recalcula el esperado y vuelve a comprobar:
+
+```powershell
+./scripts/04-Copiar-Articulos-Prueba.ps1 -Recalcular
+./scripts/05-Comprobar-Stock-Prueba.ps1
+```
+
+Usa siempre `-Recalcular`. Sin esa opción, el script vuelve a elegir los artículos y, si hay movimientos nuevos, puede salir otra muestra que no está en la lista de prueba.
 
 ## Consumo
 
