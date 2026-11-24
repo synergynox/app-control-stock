@@ -8,7 +8,7 @@ Guardan en ARTICULOS ALMACEN el stock y el último precio de cada artículo (`St
 | `StockTotalesMovimiento` | Al crear o modificar una fila de ENTRADAS ALMACEN | Llama a `StockTotalesArticulo` con el código de esa fila |
 | `StockTotalesLote` | A mano | Llama a `StockTotalesArticulo` para todos los artículos de la lista de destino. Solo para las pruebas: en la lista real serían demasiadas ejecuciones |
 
-No hay flujo nocturno (D-19). El recálculo completo de la lista real lo hace el script `06-Recalcular-Stock.ps1` (T-16).
+No hay flujo nocturno (D-19). El recálculo completo de la lista real lo hace el script `06-Recalcular-Stock.ps1`.
 
 Los flujos calculan con las reglas de [modelo-datos.md](../docs/modelo-datos.md#fórmulas):
 - `StockActual = Σ CANTIDAD − Σ CANTIDADSALIDA` de todas las filas del artículo (vacío = 0). Puede ser negativo.
@@ -152,10 +152,16 @@ Quita los espacios y dobla las comillas simples, para que un código con `'` no 
 
 ### 1.8 Guardar en la lista de destino
 
-1. **SharePoint > Obtener elementos**. Renómbralo `Fila destino`.
-   - Nombre de la lista: variable de entorno **Lista Articulos**
-   - Consulta de filtro: en tres partes: a mano `CODIGO eq '`; **rayo** > debajo de **Codigo filtro**, la línea **Salidas** (si no aparece, **fx** > `outputs('Codigo_filtro')`); a mano `'`. Queda `CODIGO eq '[Salidas]'`, con la ficha azul en medio. Si da el mismo error «Creating query failed» que tenía `Leer articulo`, avísame y lo cambiamos también por una solicitud HTTP
-   - Recuento superior: `1`
+1. **SharePoint > Enviar una solicitud HTTP a SharePoint**. Renómbralo `Fila destino`. No uses «Obtener elementos»: con la lista de prueba funciona, pero cuando **Lista Articulos** apunte a ARTICULOS ALMACEN fallará igual que `Leer articulo` (paso 1.3).
+   - Dirección del sitio: **Sitio SharePoint**
+   - Método: `GET`
+   - URI, en cinco partes:
+     1. a mano: `_api/web/lists/getbytitle('`;
+     2. **rayo** > variable de entorno **Lista Articulos** (ficha);
+     3. a mano: `')/items?$select=ID,StockActual,UltimoPrecio,UltimoProveedor&$top=1&$filter=CODIGO%20eq%20'`;
+     4. **fx**: `encodeUriComponent(outputs('Codigo_filtro'))`;
+     5. a mano: `'`.
+   - Encabezados: `Accept` = `application/json;odata=nometadata`. Con él la respuesta trae `value`, así que los pasos 2 a 4 no cambian.
 2. **Redactar**. Renómbralo `Cuerpo`. Expresión:
 
    ```

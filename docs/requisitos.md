@@ -124,7 +124,7 @@ Solo administración.
 - Los retales no se controlan: el stock puede ser negativo.
 - La app no cambia columnas existentes de ENTRADAS ALMACEN, que App Taller también usa.
 - **No se borran movimientos ni se cambia su CODIGO** (D-19). La app no tiene botón de borrar y no deja cambiar el artículo de una fila guardada. Un error se corrige con una fila nueva que lo compense (por ejemplo, una entrada de 10 para anular una salida de 10 mal puesta), con «Corrección de la fila del dd/mm/aaaa» en EXTRA DESCRIPCION.
-- **Recálculo completo** del stock con el script `06-Recalcular-Stock.ps1` (T-16) a final de año y antes de cada recuento (D-19).
+- **Recálculo completo** del stock con el script `06-Recalcular-Stock.ps1` a final de año y antes de cada recuento (D-19).
 
 ## Fuera de alcance de la versión 1
 

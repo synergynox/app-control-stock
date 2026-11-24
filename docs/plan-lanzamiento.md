@@ -18,5 +18,5 @@ Plan por fases. Cada fase termina cuando se cumplen sus criterios de salida y su
 | El stock histórico no es fiable (filas antiguas, retales, errores) | Primer recuento completo como punto de partida, con una regularización inicial (T-07) |
 | Delegación: más de 2.000 filas en búsquedas por proveedor o Job | Filtros por Id de lookup (`CODIGO`, `PROVEEDOR` y `PROYECTO` ya indexadas) y rango de fechas |
 | Un cambio en ENTRADAS ALMACEN rompe App Taller | Solo se añaden filas y columnas en ARTICULOS ALMACEN; no se toca el esquema de ENTRADAS ALMACEN. Al terminar cada fase se comprueba `TallerTotalesMaterial` |
-| El flujo StockTotales tarda o falla y se regulariza con un stock viejo | Comprobar `FechaStock` antes de regularizar (T-13) y recálculo completo con script antes de cada recuento (T-16) |
+| El flujo StockTotales tarda o falla y se regulariza con un stock viejo | Comprobar `FechaStock` antes de regularizar (T-13) y recálculo completo con `06-Recalcular-Stock.ps1` antes de cada recuento |
 | Pesos específicos o medidas mal puestos dan equivalencias erróneas | Validar con negocio una muestra de artículos (T-02, T-04) |

@@ -49,7 +49,7 @@ Antes de regularizar hay que esperar a que el flujo StockTotales haya recalculad
 - **`StockTotalesArticulo`**: flujo secundario que recalcula un artículo con todas sus filas. Lo llaman el flujo de movimientos, el botón «Recalcular» de la ficha del artículo y, más adelante, la app antes de regularizar (T-13).
 - **`StockTotalesMovimiento`**: se dispara al crear o modificar una fila de ENTRADAS ALMACEN y recalcula el artículo de esa fila.
 - **No hay flujo nocturno** (D-19). Como no se borran filas ni se cambia su CODIGO, el flujo de cada movimiento basta. Si alguna vez falla, el siguiente movimiento del artículo o el botón «Recalcular» lo corrigen.
-- **Recálculo completo** con el script `06-Recalcular-Stock.ps1` (T-16), desde el PC, a final de año y antes de cada recuento. Para las pruebas está además `StockTotalesLote`, que se lanza a mano.
+- **Recálculo completo** con el script `06-Recalcular-Stock.ps1`, desde el PC, a final de año y antes de cada recuento. Para las pruebas está además `StockTotalesLote`, que se lanza a mano.
 
 ### Corrección de un movimiento (D-19)
 
