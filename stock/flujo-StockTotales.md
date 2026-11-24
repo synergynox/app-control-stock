@@ -99,7 +99,8 @@ Quita los espacios y dobla las comillas simples, para que un código con `'` no 
 
 1. **Operación de datos > Seleccionar**. Renómbralo `Valores entrada`.
    - Desde: `body('Movimientos')?['value']`
-   - En Asignar, pulsa el icono de **modo texto** y pon la expresión `float(coalesce(item()?['CANTIDAD'], 0))`
+   - En Asignar, pulsa **antes** el icono de **modo texto** («Cambiar Asignar al modo de texto», a la derecha de Asignar). Así queda una sola caja, sin columnas Clave y Valor. Ahí, por **fx**, pon `float(coalesce(item()?['CANTIDAD'], 0))`.
+   - **No la pongas en la columna Valor con la Clave vacía.** La acción sale en verde igualmente, pero devuelve `[{"": 3}, …]` en vez de `[3, …]`, y `Total entrada` falla con «XmlNodeConverter cannot convert JSON with an empty property name to XML». La salida correcta es una lista de números.
 2. **Seleccionar**. Renómbralo `Valores salida`. Igual, con `float(coalesce(item()?['CANTIDADSALIDA'], 0))`.
 3. **Redactar**. Renómbralo `Total entrada`. Expresión:
 
