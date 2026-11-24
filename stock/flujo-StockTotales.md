@@ -65,15 +65,18 @@ Quita los espacios y dobla las comillas simples, para que un código con `'` no 
 
 ### 1.3 Leer el artículo en ARTICULOS ALMACEN
 
-**SharePoint > Obtener elementos**. Renómbralo `Leer articulo`.
-- Nombre de la lista: `ARTICULOS ALMACEN`, del desplegable. Aquí sí es la lista real, porque solo se lee.
-- Consulta de filtro, en tres partes:
-  1. a mano: `CODIGO eq '` (con la comilla simple al final);
-  2. **rayo** > debajo del título **Codigo filtro**, elige **Salidas**. El título morado «Codigo filtro» no se puede elegir: es la línea **Salidas** de debajo. Si no aparece, pulsa **fx** y pega `outputs('Codigo_filtro')`;
-  3. a mano: `'`.
+**SharePoint > Enviar una solicitud HTTP a SharePoint**. Es del conector estándar de SharePoint, no necesita Premium. Renómbralo `Leer articulo`.
 
-  Queda `CODIGO eq '[Salidas]'`, con la ficha azul en medio. No lo pegues entero en **fx**.
-- Recuento superior: `1`
+> **No uses «Obtener elementos» aquí.** En ARTICULOS ALMACEN falla con «La expresión "CODIGO eq '8024'" no es válida. Creating query failed», aunque la lista y la columna son correctas y la misma consulta funciona por REST (comprobado el 24/11/2026 con el artículo 806, `8024`). Lo más probable es que la acción no sepa tratar las columnas que sobraron de la importación (ver [estructura-tablas.md](../docs/estructura-tablas.md#articulos-almacen)).
+
+- Dirección del sitio: la variable de entorno **Sitio SharePoint**.
+- Método: `GET`
+- URI, en tres partes:
+  1. a mano: `_api/web/lists(guid'b9661dee-afb1-46ae-8371-c3c51b0908cc')/items?$select=ID&$top=1&$filter=CODIGO%20eq%20'` (es el ID de ARTICULOS ALMACEN, la lista real, porque solo se lee);
+  2. **fx** > `encodeUriComponent(outputs('Codigo_filtro'))`. Así un código con `#`, `&` o espacios no rompe la dirección;
+  3. a mano: `'`.
+- Encabezados: clave `Accept`, valor `application/json;odata=nometadata`. Con este encabezado la respuesta trae `value` igual que «Obtener elementos», así que los pasos 1.4 y 1.5 no cambian.
+- Cuerpo: vacío.
 
 ### 1.4 Si el artículo no existe, terminar
 
@@ -150,7 +153,7 @@ Quita los espacios y dobla las comillas simples, para que un código con `'` no 
 
 1. **SharePoint > Obtener elementos**. Renómbralo `Fila destino`.
    - Nombre de la lista: variable de entorno **Lista Articulos**
-   - Consulta de filtro: `CODIGO eq '[Salidas de Codigo filtro]'`, montado igual que en `Leer articulo` (paso 1.3)
+   - Consulta de filtro: en tres partes: a mano `CODIGO eq '`; **rayo** > debajo de **Codigo filtro**, la línea **Salidas** (si no aparece, **fx** > `outputs('Codigo_filtro')`); a mano `'`. Queda `CODIGO eq '[Salidas]'`, con la ficha azul en medio. Si da el mismo error «Creating query failed» que tenía `Leer articulo`, avísame y lo cambiamos también por una solicitud HTTP
    - Recuento superior: `1`
 2. **Redactar**. Renómbralo `Cuerpo`. Expresión:
 
