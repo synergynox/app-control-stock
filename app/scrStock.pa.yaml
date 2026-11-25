@@ -90,7 +90,7 @@ Screens:
               );
               // Columnas calculadas (docs/modelo-datos.md):
               //   Lugar, Grupo: LUGAR es Campo1 y GRUPO es LUGAR (nombres internos cruzados)
-              //   Stock: StockActual (vacío = 0). Aviso (D-1): 2 = stock <= 0 (rojo), 1 = stock <= StockMinimo (naranja), 0 = sin aviso
+              //   Stock: StockActual (vacío = 0). Aviso (D-1, D-20): 2 = stock < 0 (rojo), 1 = stock <= StockMinimo (naranja), 0 = sin aviso (gris si stock = 0)
               //   Valor: stock positivo × último precio. Oculto: LUGAR descatalogado o CANCELADO
               //   PesoUnidad (D-4): kg/m² (plancha) o kg/m (resto), con el peso específico de MATERIALES. 0 si no es plancha ni macizo
               ClearCollect(
@@ -104,7 +104,7 @@ Screens:
                               Stock, Coalesce(StockActual, 0),
                               Rho, Coalesce(LookUp(colMateriales, ID = Material.Id, PesoEspecifico), 0)
                           ),
-                          Aviso, If(Stock <= 0, 2, !IsBlank(StockMinimo) && Stock <= StockMinimo, 1, 0),
+                          Aviso, If(Stock < 0, 2, !IsBlank(StockMinimo) && Stock <= StockMinimo, 1, 0),
                           Valor, Max(Stock, 0) * Coalesce(UltimoPrecio, 0),
                           Oculto, Lower(Lugar) in nfLugaresOcultos,
                           PesoUnidad, Coalesce(
@@ -205,7 +205,7 @@ Screens:
             OnSelect: =Set(varStoSoloAvisos, !varStoSoloAvisos)
             PressedFill: =nfColorClaro
             Text: =If(varStoSoloAvisos, "✓ Solo con aviso", "Solo con aviso")
-            Tooltip: ="Solo los artículos con stock ≤ 0 o por debajo del mínimo"
+            Tooltip: ="Solo los artículos con stock negativo o en el mínimo o por debajo"
             Width: =150
             X: =800
             Y: =80
@@ -327,7 +327,7 @@ Screens:
             - lblStoFilaCodigo:
                 Control: Label@2.5.1
                 Properties:
-                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, nfColorTexto)
+                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, If(ThisItem.Stock = 0, nfColorTextoSuave, nfColorTexto))
                   FontWeight: =FontWeight.Semibold
                   Height: =Parent.TemplateHeight
                   OnSelect: =Select(Parent)
@@ -338,7 +338,7 @@ Screens:
             - lblStoFilaConcepto:
                 Control: Label@2.5.1
                 Properties:
-                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, nfColorTexto)
+                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, If(ThisItem.Stock = 0, nfColorTextoSuave, nfColorTexto))
                   Height: =Parent.TemplateHeight
                   OnSelect: =Select(Parent)
                   Size: =11
@@ -360,7 +360,7 @@ Screens:
                 Control: Label@2.5.1
                 Properties:
                   Align: =Align.Right
-                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, nfColorTexto)
+                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, If(ThisItem.Stock = 0, nfColorTextoSuave, nfColorTexto))
                   FontWeight: =If(ThisItem.Aviso > 0, FontWeight.Semibold, FontWeight.Normal)
                   Height: =Parent.TemplateHeight
                   OnSelect: =Select(Parent)
@@ -411,7 +411,7 @@ Screens:
             Size: =11
             Text: |-
               =Text(CountRows(galStock.AllItems), "#,##0", "es-ES") & " artículos  ·  " &
-              CountRows(Filter(galStock.AllItems, Aviso = 2)) & " sin stock  ·  " &
+              CountRows(Filter(galStock.AllItems, Aviso = 2)) & " negativos  ·  " &
               CountRows(Filter(galStock.AllItems, Aviso = 1)) & " bajo mínimo"
             Width: =420
             X: =24
@@ -424,7 +424,7 @@ Screens:
             Height: =36
             Size: =10
             Text: |-
-              ="Rojo: stock ≤ 0.  Naranja: stock ≤ mínimo.  El stock se actualiza solo con cada movimiento (unos minutos de retraso)."
+              ="Rojo: stock negativo.  Naranja: stock ≤ mínimo.  Gris: stock 0.  El stock se actualiza solo con cada movimiento (unos minutos de retraso)."
             Width: =galStock.Width - 440
             X: =galStock.X + 440
             Y: =Parent.Height - 40

@@ -17,7 +17,7 @@ Pruebas por fase. Si cambia una regla, actualiza sus pruebas. Las pruebas de esc
 | ID | Prueba | Resultado esperado |
 |---|---|---|
 | V-1.1 | Filtrar por lugar `JUMEC` y por un grupo | Solo salen los artículos de ese lugar y grupo |
-| V-1.2 | Artículo con stock ≤ 0, otro ≤ mínimo y otro sin mínimo | Rojo, naranja y normal |
+| V-1.2 | Artículo con stock negativo, otro ≤ mínimo, otro con stock 0 sin mínimo y otro positivo sin mínimo | Rojo, naranja, gris y normal (D-20) |
 | V-1.3 | Plancha de hierro de 5 mm con 392,5 kg | Equivalencia de 10 m² |
 | V-1.4 | Historial de un artículo, filtrado por proveedor | Solo compras de ese proveedor, sin STOCK synergy |
 | V-1.5 | Entrar con una cuenta que no está en ADMIN ALMACEN | No hay botones de alta, entrada, salida, albaranes ni regularizar |

@@ -27,7 +27,7 @@ Todos los perfiles.
 - Lista de artículos con código, concepto, lugar, grupo, medida, stock, último precio y último proveedor.
 - Filtros: búsqueda por **concepto** (o código), **lugar** y **grupo**.
 - Resumen por lugar: número de artículos y valor del stock (stock × último precio).
-- **Aviso visual:** en rojo si stock ≤ 0, en naranja si stock ≤ `StockMinimo` (D-1).
+- **Aviso visual:** en rojo si el stock es negativo, en naranja si stock ≤ `StockMinimo` y en gris si es 0 (D-1, D-20).
 - Planchas y macizos muestran, además de los kg, la equivalencia en medida (m² o metros, D-4).
 
 **Aceptación:**
