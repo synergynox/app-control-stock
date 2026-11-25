@@ -366,10 +366,10 @@ Screens:
                   OnSelect: =Select(Parent)
                   Size: =11
                   Text: |-
-                    =Text(ThisItem.Stock, "#,##0.###", "es-ES") & " " & ThisItem.MEDIDA &
+                    =Text(ThisItem.Stock, If(Mod(ThisItem.Stock, 1) = 0, "#,##0", "#,##0.###"), "es-ES") & " " & ThisItem.MEDIDA &
                     If(IsBlank(ThisItem.Equivalencia), "", Char(10) & ThisItem.Equivalencia)
                   Tooltip: |-
-                    =If(IsBlank(ThisItem.StockMinimo), "Sin stock mínimo", "Stock mínimo: " & Text(ThisItem.StockMinimo, "#,##0.###", "es-ES")) &
+                    =If(IsBlank(ThisItem.StockMinimo), "Sin stock mínimo", "Stock mínimo: " & Text(ThisItem.StockMinimo, If(Mod(ThisItem.StockMinimo, 1) = 0, "#,##0", "#,##0.###"), "es-ES")) &
                     Char(10) & If(IsBlank(ThisItem.FechaStock), "Stock sin calcular", "Calculado el " & Text(ThisItem.FechaStock, "dd/mm/yyyy hh:mm"))
                   Width: =140
                   X: =Parent.TemplateWidth - 482
