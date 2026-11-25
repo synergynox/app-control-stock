@@ -4,9 +4,10 @@ Guardan en ARTICULOS ALMACEN el stock y el último precio de cada artículo (`St
 
 | Flujo | Cuándo se ejecuta | Qué hace |
 |---|---|---|
-| `StockTotalesArticulo` | Lo llaman los otros dos, el botón «Recalcular» de la app y, más adelante, la regularización (T-13) | Recalcula **un** artículo y guarda su stock y último precio. Es el único que calcula |
+| `StockTotalesArticulo` | Lo llaman los otros dos, `StockRecalcular` y, más adelante, la regularización (T-13) | Recalcula **un** artículo y guarda su stock y último precio. Es el único que calcula |
 | `StockTotalesMovimiento` | Al crear o modificar una fila de ENTRADAS ALMACEN | Llama a `StockTotalesArticulo` con el código de esa fila |
 | `StockTotalesLote` | A mano | Llama a `StockTotalesArticulo` para todos los artículos de la lista de destino. Solo para las pruebas: en la lista real serían demasiadas ejecuciones |
+| `StockRecalcular` | Desde la app, con el botón «Recalcular» de la ficha del artículo | Llama a `StockTotalesArticulo` y devuelve el resultado a la app (sección 4) |
 
 No hay flujo nocturno (D-19). El recálculo completo de la lista real lo hace el script `06-Recalcular-Stock.ps1`.
 
@@ -240,6 +241,21 @@ Mientras la variable apunte a la prueba, el flujo se ejecuta con cada movimiento
    - Recuento superior: `5000`, y paginación con umbral `100000`
 3. **Aplicar a cada uno** sobre `body('Articulos')?['value']`, renombrado `Cada articulo`. En **⋯ > Configuración**, activa **Control de simultaneidad** con grado `5`. Dentro: **Ejecutar un flujo secundario** `StockTotalesArticulo`, con Codigo = `items('Cada_articulo')?['CODIGO']`.
 4. **Probar > Manualmente**. Con los 20 artículos de la prueba tarda un par de minutos. Después, comprueba con `scripts/05-Comprobar-Stock-Prueba.ps1` (V-0.1, V-0.2).
+
+## 4. `StockRecalcular` (botón «Recalcular» de la app)
+
+Power Apps no puede llamar a un flujo con el desencadenador **Desencadenar manualmente un flujo**, que es el que necesita `StockTotalesArticulo` como flujo secundario. Por eso el botón llama a este flujo, que solo hace de puente.
+
+1. Dentro de la solución: **+ Nuevo > Automatización > Flujo de nube > Instantáneo**, con el desencadenador **Cuando Power Apps llama a un flujo (V2)**. Nombre: `StockRecalcular`, sin espacios.
+2. En el desencadenador, **+ Agregar una entrada > Texto**, con el nombre `Codigo`.
+3. **Flujos > Ejecutar un flujo secundario**: elige `StockTotalesArticulo` y, en `Codigo`, **rayo** > **Codigo** del desencadenador.
+4. **Responder a una aplicación o flujo de Power Apps**, con dos salidas:
+   - Texto `Resultado`: **rayo** > **Resultado** de *Ejecutar un flujo secundario*.
+   - Número `Stock`: **rayo** > **Stock** de *Ejecutar un flujo secundario*.
+5. Guarda y **Publica**.
+6. En Power Apps Studio: panel **Power Automate** (icono de la izquierda) > **Agregar flujo** > `StockRecalcular`. Hasta que no esté añadido, el botón «Recalcular» de `scrArticulo` sale en rojo.
+
+El flujo no usa ninguna conexión propia: escribe `StockTotalesArticulo` con la suya (workshop@…). No hace falta compartirlo aparte, porque quien tiene la app puede ejecutar los flujos que la app lleva dentro.
 
 ## Comprobación
 

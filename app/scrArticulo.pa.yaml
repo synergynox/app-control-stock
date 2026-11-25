@@ -1,0 +1,575 @@
+Screens:
+  scrArticulo:
+    Properties:
+      Fill: =nfColorFondo
+      OnVisible: |-
+        =// varArticulo: fila de colArticulos elegida en scrStock.
+        // Movimientos del artículo: filtro por el Id del lookup CODIGO (delegable, CODIGO indexada) y orden por FECHA
+        // descendente, así que si hay más de 2.000 llegan los 2.000 más recientes (0000 y 8110 tienen más).
+        Set(varArtPestana, "Compras");
+        Reset(cmbArtProveedor);
+        Reset(txtArtKg);
+        Reset(txtArtLargo);
+        Reset(txtArtAncho);
+        ClearCollect(
+            colArtMovs,
+            SortByColumns(
+                Filter('ENTRADAS ALMACEN', CODIGO.Id = varArticulo.ID),
+                "FECHA", SortOrder.Descending,
+                "ID", SortOrder.Descending
+            )
+        )
+    Children:
+      - recArtBarra:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =nfColor
+            Height: =64
+            Width: =Parent.Width
+      - btnArtVolver:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =nfBlanco
+            Color: =nfBlanco
+            Fill: =nfColorOscuro
+            Height: =40
+            HoverFill: =ColorFade(nfColorOscuro, -15%)
+            OnSelect: =Navigate(scrStock)
+            PressedFill: =nfColorOscuro
+            Text: ="< Volver"
+            Width: =120
+            X: =24
+            Y: =12
+      - lblArtTitulo:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfBlanco
+            FontWeight: =FontWeight.Semibold
+            Height: =64
+            Size: =18
+            Text: =varArticulo.CODIGO & "  ·  " & varArticulo.CONCEPTO
+            Tooltip: =varArticulo.CONCEPTO
+            Width: =Parent.Width - 164 - 184
+            X: =164
+      - btnArtRecalcular:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =nfBlanco
+            Color: =nfBlanco
+            DisplayMode: =If(varArtRecalculando, DisplayMode.Disabled, DisplayMode.Edit)
+            Fill: =nfColorOscuro
+            Height: =40
+            HoverFill: =ColorFade(nfColorOscuro, -15%)
+            OnSelect: |-
+              =// «Recalcular» (D-19): el flujo StockRecalcular llama a StockTotalesArticulo, que suma todas las filas del artículo
+              // y guarda stock y último precio en ARTICULOS ALMACEN (stock/flujo-StockTotales.md, sección 4).
+              // Después se relee el artículo y se actualiza su fila de colArticulos, con las mismas columnas calculadas que
+              // btnStoCargar en scrStock (Aviso D-1/D-20, Valor, Equivalencia D-4). Si cambia una regla, cambia las dos.
+              Set(varArtRecalculando, true);
+              Set(varArtResultado, StockRecalcular.Run(varArticulo.CODIGO));
+              With(
+                  {r: LookUp('ARTICULOS ALMACEN', ID = varArticulo.ID)},
+                  With(
+                      {s: Coalesce(r.StockActual, 0)},
+                      Patch(
+                          colArticulos,
+                          LookUp(colArticulos, ID = varArticulo.ID),
+                          {
+                              StockActual: r.StockActual,
+                              Stock: s,
+                              UltimoPrecio: r.UltimoPrecio,
+                              UltimoProveedor: r.UltimoProveedor,
+                              FechaStock: r.FechaStock,
+                              StockMinimo: r.StockMinimo,
+                              Aviso: If(s < 0, 2, !IsBlank(r.StockMinimo) && s <= r.StockMinimo, 1, 0),
+                              Valor: Max(s, 0) * Coalesce(r.UltimoPrecio, 0),
+                              Equivalencia: If(
+                                  varArticulo.PesoUnidad > 0,
+                                  "≈ " & Text(s / varArticulo.PesoUnidad, "#,##0.00", "es-ES") & If(varArticulo.Forma.Value = "PLANCHA", " m²", " m"),
+                                  ""
+                              )
+                          }
+                      )
+                  )
+              );
+              Set(varArticulo, LookUp(colArticulos, ID = varArticulo.ID));
+              Select(btnArtRecargarMovs);
+              Set(varArtRecalculando, false);
+              If(
+                  varArtResultado.resultado = "OK",
+                  Notify("Stock recalculado: " & Text(varArticulo.Stock, "#,##0.###", "es-ES") & " " & varArticulo.MEDIDA, NotificationType.Success),
+                  Notify("No se ha podido recalcular: " & Coalesce(varArtResultado.resultado, "sin respuesta del flujo"), NotificationType.Error)
+              )
+            PressedFill: =nfColorOscuro
+            Text: =If(varArtRecalculando, "Recalculando…", "Recalcular")
+            Tooltip: ="Vuelve a sumar todos los movimientos del artículo y guarda el stock y el último precio"
+            Width: =160
+            X: =Parent.Width - 184
+            Y: =12
+      - btnArtRecargarMovs:
+          Control: Classic/Button@2.2.0
+          Properties:
+            OnSelect: |-
+              =// Oculto: vuelve a leer los movimientos (lo usa Recalcular). Misma consulta que OnVisible.
+              ClearCollect(
+                  colArtMovs,
+                  SortByColumns(
+                      Filter('ENTRADAS ALMACEN', CODIGO.Id = varArticulo.ID),
+                      "FECHA", SortOrder.Descending,
+                      "ID", SortOrder.Descending
+                  )
+              )
+            Text: ="Recargar movimientos"
+            Visible: =false
+            Width: =10
+            X: =0
+            Y: =0
+      - recArtPanel:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =nfColorBorde
+            BorderThickness: =1
+            Fill: =nfBlanco
+            Height: =Parent.Height - 80 - 24
+            Width: =400
+            X: =24
+            Y: =80
+      - lblArtStock:
+          Control: Label@2.5.1
+          Properties:
+            Color: =Switch(varArticulo.Aviso, 2, nfColorError, 1, nfColorAviso, If(varArticulo.Stock = 0, nfColorTextoSuave, nfColorTexto))
+            FontWeight: =FontWeight.Semibold
+            Height: =48
+            Size: =24
+            Text: |-
+              =Text(varArticulo.Stock, If(Mod(varArticulo.Stock, 1) = 0, "#,##0", "#,##0.###"), "es-ES") & " " & varArticulo.MEDIDA
+            Width: =376
+            X: =recArtPanel.X + 12
+            Y: =recArtPanel.Y + 8
+      - lblArtStockDetalle:
+          Control: Label@2.5.1
+          Properties:
+            Color: =Switch(varArticulo.Aviso, 2, nfColorError, 1, nfColorAviso, nfColorTextoSuave)
+            Height: =28
+            Size: =10
+            Text: |-
+              =Switch(varArticulo.Aviso, 2, "Stock negativo.  ", 1, "En el stock mínimo o por debajo.  ", "") &
+              If(IsBlank(varArticulo.Equivalencia), "", varArticulo.Equivalencia & "  ·  ") &
+              If(IsBlank(varArticulo.FechaStock), "Stock sin calcular", "Calculado el " & Text(varArticulo.FechaStock, "dd/mm/yyyy hh:mm"))
+            Width: =376
+            X: =recArtPanel.X + 12
+            Y: =recArtPanel.Y + 54
+      - galArtDatos:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Properties:
+            Height: =If(varArticulo.PesoUnidad > 0, 360, recArtPanel.Height - 96)
+            Items: |-
+              =Filter(
+                  Table(
+                      {k: "Concepto 2", v: varArticulo.CONCEPTO2, ver: !IsBlank(varArticulo.CONCEPTO2)},
+                      {k: "Lugar", v: varArticulo.Lugar, ver: true},
+                      {k: "Grupo", v: varArticulo.Grupo, ver: true},
+                      {k: "Medida", v: varArticulo.MEDIDA, ver: true},
+                      {k: "Stock mínimo", v: If(IsBlank(varArticulo.StockMinimo), "—", Text(varArticulo.StockMinimo, "#,##0.###", "es-ES")), ver: true},
+                      {k: "Último precio", v: If(IsBlank(varArticulo.UltimoPrecio), "— (sin compras)", Text(varArticulo.UltimoPrecio, "#,##0.00## €", "es-ES")), ver: true},
+                      {k: "Último proveedor", v: varArticulo.UltimoProveedor, ver: !IsBlank(varArticulo.UltimoProveedor)},
+                      {k: "Valor del stock", v: Text(varArticulo.Valor, "#,##0.00 €", "es-ES"), ver: true},
+                      {k: "Material", v: LookUp(colMateriales, ID = varArticulo.Material.Id, Title), ver: !IsBlank(varArticulo.Material.Id)},
+                      {k: "Forma", v: varArticulo.Forma.Value, ver: !IsBlank(varArticulo.Forma.Value)},
+                      {k: If(varArticulo.Forma.Value = "PLANCHA" || varArticulo.Forma.Value = "PLETINA", "Espesor", If(varArticulo.Forma.Value = "CUADRADO", "Lado", If(varArticulo.Forma.Value = "HEXAGONAL", "Entre caras", "Diámetro"))),
+                          v: Text(varArticulo.Medida1, "#,##0.##", "es-ES") & " mm", ver: !IsBlank(varArticulo.Medida1)},
+                      {k: If(varArticulo.Forma.Value = "TUBO", "Pared", "Ancho"), v: Text(varArticulo.Medida2, "#,##0.##", "es-ES") & " mm", ver: !IsBlank(varArticulo.Medida2)},
+                      {k: "Peso", v: Text(varArticulo.PesoUnidad, "#,##0.###", "es-ES") & If(varArticulo.Forma.Value = "PLANCHA", " kg/m²", " kg/m"), ver: varArticulo.PesoUnidad > 0}
+                  ),
+                  ver
+              )
+            TemplatePadding: =0
+            TemplateSize: =28
+            Width: =recArtPanel.Width - 2
+            X: =recArtPanel.X + 1
+            Y: =recArtPanel.Y + 88
+          Children:
+            - lblArtDatoClave:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTextoSuave
+                  Height: =Parent.TemplateHeight
+                  Size: =10
+                  Text: =ThisItem.k
+                  Width: =130
+                  X: =12
+            - lblArtDatoValor:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTexto
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: =ThisItem.v
+                  Tooltip: =ThisItem.v
+                  Width: =Parent.TemplateWidth - 154
+                  X: =142
+      - lblArtCalcTitulo:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTexto
+            FontWeight: =FontWeight.Semibold
+            Height: =32
+            Size: =12
+            Text: ="Calculadora kg ↔ medida"
+            Visible: =varArticulo.PesoUnidad > 0
+            Width: =376
+            X: =recArtPanel.X + 12
+            Y: =galArtDatos.Y + galArtDatos.Height + 8
+      - lblArtCalcKg:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            Height: =36
+            Size: =10
+            Text: ="Kg"
+            Visible: =varArticulo.PesoUnidad > 0
+            Width: =60
+            X: =recArtPanel.X + 12
+            Y: =lblArtCalcTitulo.Y + 36
+      - txtArtKg:
+          Control: Classic/TextInput@2.3.2
+          Properties:
+            BorderColor: =nfColorBorde
+            Default: =""
+            Height: =36
+            HintText: ="kg"
+            Visible: =varArticulo.PesoUnidad > 0
+            Width: =100
+            X: =recArtPanel.X + 72
+            Y: =lblArtCalcTitulo.Y + 36
+      - lblArtCalcKgRes:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTexto
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =11
+            Text: |-
+              =If(
+                  IsBlank(txtArtKg.Text), "",
+                  "= " & Text(Value(txtArtKg.Text, "es-ES") / varArticulo.PesoUnidad, "#,##0.00", "es-ES") &
+                  If(varArticulo.Forma.Value = "PLANCHA", " m²", " m")
+              )
+            Visible: =varArticulo.PesoUnidad > 0
+            Width: =200
+            X: =recArtPanel.X + 184
+            Y: =lblArtCalcTitulo.Y + 36
+      - lblArtCalcLargo:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            Height: =36
+            Size: =10
+            Text: ="Medida"
+            Visible: =varArticulo.PesoUnidad > 0
+            Width: =60
+            X: =recArtPanel.X + 12
+            Y: =lblArtCalcTitulo.Y + 80
+      - txtArtLargo:
+          Control: Classic/TextInput@2.3.2
+          Properties:
+            BorderColor: =nfColorBorde
+            Default: =""
+            Height: =36
+            HintText: ="largo m"
+            Visible: =varArticulo.PesoUnidad > 0
+            Width: =100
+            X: =recArtPanel.X + 72
+            Y: =lblArtCalcTitulo.Y + 80
+      - txtArtAncho:
+          Control: Classic/TextInput@2.3.2
+          Properties:
+            BorderColor: =nfColorBorde
+            Default: =""
+            Height: =36
+            HintText: ="ancho m"
+            Visible: =varArticulo.PesoUnidad > 0 && varArticulo.Forma.Value = "PLANCHA"
+            Width: =80
+            X: =recArtPanel.X + 180
+            Y: =lblArtCalcTitulo.Y + 80
+      - lblArtCalcLargoRes:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTexto
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =11
+            Text: |-
+              =If(
+                  IsBlank(txtArtLargo.Text) || (varArticulo.Forma.Value = "PLANCHA" && IsBlank(txtArtAncho.Text)), "",
+                  "= " & Text(
+                      Value(txtArtLargo.Text, "es-ES") *
+                      If(varArticulo.Forma.Value = "PLANCHA", Value(txtArtAncho.Text, "es-ES"), 1) *
+                      varArticulo.PesoUnidad,
+                      "#,##0.00", "es-ES"
+                  ) & " kg"
+              )
+            Visible: =varArticulo.PesoUnidad > 0
+            Width: =120
+            X: =recArtPanel.X + 268
+            Y: =lblArtCalcTitulo.Y + 80
+      - btnArtCompras:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =If(varArtPestana = "Compras", nfColorOscuro, nfColorBorde)
+            Color: =If(varArtPestana = "Compras", nfBlanco, nfColorOscuro)
+            Fill: =If(varArtPestana = "Compras", nfColorOscuro, nfBlanco)
+            Height: =40
+            HoverColor: =If(varArtPestana = "Compras", nfBlanco, nfColorOscuro)
+            HoverFill: =If(varArtPestana = "Compras", ColorFade(nfColorOscuro, -15%), nfColorClaro)
+            OnSelect: =Set(varArtPestana, "Compras")
+            PressedFill: =nfColorClaro
+            Text: ="Compras (" & CountRows(Filter(colArtMovs, CANTIDAD > 0, PROVEEDOR.Id <> nfIdStockSynergy)) & ")"
+            Width: =180
+            X: =448
+            Y: =80
+      - btnArtSalidas:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =If(varArtPestana = "Salidas", nfColorOscuro, nfColorBorde)
+            Color: =If(varArtPestana = "Salidas", nfBlanco, nfColorOscuro)
+            Fill: =If(varArtPestana = "Salidas", nfColorOscuro, nfBlanco)
+            Height: =40
+            HoverColor: =If(varArtPestana = "Salidas", nfBlanco, nfColorOscuro)
+            HoverFill: =If(varArtPestana = "Salidas", ColorFade(nfColorOscuro, -15%), nfColorClaro)
+            OnSelect: =Set(varArtPestana, "Salidas")
+            PressedFill: =nfColorClaro
+            Text: ="Salidas (" & CountRows(Filter(colArtMovs, CANTIDADSALIDA > 0)) & ")"
+            Width: =180
+            X: =640
+            Y: =80
+      - cmbArtProveedor:
+          Control: Classic/ComboBox@2.4.0
+          Properties:
+            BorderColor: =nfColorBorde
+            DefaultSelectedItems: |-
+              =Table({Value: "Todos los proveedores"})
+            DisplayFields: =["Value"]
+            Height: =40
+            InputTextPlaceholder: ="Proveedor"
+            IsSearchable: =false
+            Items: |-
+              =Ungroup(
+                  Table(
+                      {t: Table({Value: "Todos los proveedores"})},
+                      {t: Sort(Distinct(Filter(colArtMovs, CANTIDAD > 0, PROVEEDOR.Id <> nfIdStockSynergy), PROVEEDOR.Value), Value)}
+                  ),
+                  t
+              )
+            SearchFields: =["Value"]
+            SelectMultiple: =false
+            Visible: =varArtPestana = "Compras"
+            Width: =280
+            X: =Parent.Width - 304
+            Y: =80
+      - lblArtAvisoLimite:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorAviso
+            Height: =40
+            Size: =10
+            Text: ="Solo los 2.000 movimientos más recientes"
+            Visible: =CountRows(colArtMovs) >= 2000
+            Width: =220
+            X: =832
+            Y: =80
+      - lblArtCabFecha:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="Fecha"
+            Width: =84
+            X: =galArtMovs.X + 12
+            Y: =132
+      - lblArtCabQuien:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: =If(varArtPestana = "Compras", "Proveedor", "Job")
+            Width: =galArtMovs.TemplateWidth - 616
+            X: =galArtMovs.X + 100
+            Y: =132
+      - lblArtCabDoc:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: =If(varArtPestana = "Compras", "Albarán / factura", "Trabajador / nota")
+            Width: =150
+            X: =galArtMovs.X + galArtMovs.TemplateWidth - 508
+            Y: =132
+      - lblArtCabCantidad:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="Cantidad"
+            Width: =80
+            X: =galArtMovs.X + galArtMovs.TemplateWidth - 352
+            Y: =132
+      - lblArtCabPrecio:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="Precio / dto."
+            Width: =130
+            X: =galArtMovs.X + galArtMovs.TemplateWidth - 268
+            Y: =132
+      - lblArtCabNeto:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =10
+            Text: ="Neto"
+            Width: =110
+            X: =galArtMovs.X + galArtMovs.TemplateWidth - 126
+            Y: =132
+      - galArtMovs:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Properties:
+            BorderColor: =nfColorBorde
+            BorderThickness: =1
+            Fill: =nfBlanco
+            Height: =Parent.Height - 164 - 24
+            Items: |-
+              =If(
+                  varArtPestana = "Compras",
+                  // Historial de compras (CU-02, D-9): filas con entrada que no son de STOCK synergy.
+                  // <> no es delegable, pero se filtra sobre colArtMovs, que ya está en memoria.
+                  Filter(
+                      colArtMovs,
+                      CANTIDAD > 0,
+                      PROVEEDOR.Id <> nfIdStockSynergy,
+                      IsBlank(cmbArtProveedor.Selected.Value) || cmbArtProveedor.Selected.Value = "Todos los proveedores" ||
+                          PROVEEDOR.Value = cmbArtProveedor.Selected.Value
+                  ),
+                  // Salidas: filas con cantidad de salida (también las compras directas a un Job, D-13)
+                  Filter(colArtMovs, CANTIDADSALIDA > 0)
+              )
+            TemplatePadding: =0
+            TemplateSize: =44
+            Width: =Parent.Width - 448 - 24
+            X: =448
+            Y: =160
+          Children:
+            - lblArtMovFecha:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTexto
+                  Height: =Parent.TemplateHeight
+                  Size: =10
+                  Text: =Text(ThisItem.FECHA, "dd/mm/yyyy")
+                  Width: =84
+                  X: =12
+            - lblArtMovQuien:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTexto
+                  Height: =Parent.TemplateHeight
+                  Size: =10
+                  Text: |-
+                    =If(
+                        varArtPestana = "Compras",
+                        ThisItem.PROVEEDOR.Value,
+                        ThisItem.PROYECTO.Value & If(ThisItem.PROVEEDOR.Id = nfIdStockSynergy, "  (desde stock)", "  (compra directa)")
+                    )
+                  Tooltip: =Self.Text
+                  Width: =Parent.TemplateWidth - 616
+                  X: =100
+            - lblArtMovDoc:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTextoSuave
+                  Height: =Parent.TemplateHeight
+                  Size: =10
+                  Text: |-
+                    =If(
+                        varArtPestana = "Compras",
+                        Coalesce(ThisItem.ALBARAN, "—") & Char(10) & Coalesce(ThisItem.N_x00ba_FACTURA, "sin factura"),
+                        Coalesce(ThisItem.TRABAJADOR.Value, "—") & Char(10) & ThisItem.EXTRADESCRIPCION
+                    )
+                  Tooltip: =Self.Text
+                  Width: =150
+                  X: =Parent.TemplateWidth - 508
+            - lblArtMovCantidad:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Right
+                  Color: =nfColorTexto
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: |-
+                    =With(
+                        {c: If(varArtPestana = "Compras", ThisItem.CANTIDAD, ThisItem.CANTIDADSALIDA)},
+                        Text(c, If(Mod(c, 1) = 0, "#,##0", "#,##0.###"), "es-ES")
+                    )
+                  Width: =80
+                  X: =Parent.TemplateWidth - 352
+            - lblArtMovPrecio:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Right
+                  Color: =nfColorTextoSuave
+                  Height: =Parent.TemplateHeight
+                  Size: =10
+                  Text: |-
+                    =Text(Coalesce(ThisItem.PRECIO, 0), "#,##0.00## €", "es-ES") &
+                    If(Coalesce(ThisItem.DESCUENTO, 0) = 0, "", Char(10) & "−" & Text(ThisItem.DESCUENTO * 100, "#,##0.##", "es-ES") & " %")
+                  Width: =130
+                  X: =Parent.TemplateWidth - 268
+            - lblArtMovNeto:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Right
+                  Color: =nfColorTexto
+                  FontWeight: =FontWeight.Semibold
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: |-
+                    =Text(Coalesce(ThisItem.PRECIO, 0) * (1 - Coalesce(ThisItem.DESCUENTO, 0)), "#,##0.00## €", "es-ES")
+                  Width: =110
+                  X: =Parent.TemplateWidth - 126
+            - recArtMovSeparador:
+                Control: Rectangle@2.3.0
+                Properties:
+                  Fill: =nfColorBorde
+                  Height: =1
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - 1
+      - lblArtSinMovs:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Color: =nfColorTextoSuave
+            Height: =60
+            Size: =11
+            Text: =If(varArtPestana = "Compras", "Sin compras de proveedor", "Sin salidas")
+            Visible: =CountRows(galArtMovs.AllItems) = 0
+            Width: =galArtMovs.Width
+            X: =galArtMovs.X
+            Y: =galArtMovs.Y + 40

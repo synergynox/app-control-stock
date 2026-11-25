@@ -316,8 +316,8 @@ Screens:
                   "CONCEPTO", SortOrder.Ascending
               )
             OnSelect: |-
-              =// La ficha del artículo (scrArticulo) llega en el paso 3: entonces se añade Navigate(scrArticulo)
-              Set(varArticulo, ThisItem)
+              =Set(varArticulo, ThisItem);
+              Navigate(scrArticulo)
             TemplatePadding: =0
             TemplateSize: =48
             Width: =Parent.Width - 48 - 316

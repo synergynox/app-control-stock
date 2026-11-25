@@ -1,12 +1,12 @@
 # App Control Stock (Power Apps)
 
-Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla ancha) para el navegador del PC (D-8). Solo controles clásicos. Las pantallas se construyen por fases ([plan-lanzamiento.md](../docs/plan-lanzamiento.md)). Hechas: fórmulas y `scrStock`.
+Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla ancha) para el navegador del PC (D-8). Solo controles clásicos. Las pantallas se construyen por fases ([plan-lanzamiento.md](../docs/plan-lanzamiento.md)). Hechas: fórmulas, `scrStock` y `scrArticulo` (consulta).
 
 | Fichero | Qué es | Fase |
 |---|---|---|
 | `App.Formulas.fx` / `App.Formulas.es.fx` | Fórmulas con nombre: colores, `nfEsAdmin` (permisos, D-5), valores fijos (`nfIdStockSynergy`, Jobs `1111` y `6969`, margen 40 %) y `nfLugaresOcultos`. La versión `.es` la genera `Generar-Formulas.ps1`, que también cambia el punto decimal por coma | 1 |
 | `scrStock.pa.yaml` | Inicio (CU-01): carga los artículos en `colArticulos` (4 bloques por el primer carácter del código, una vez por sesión), con stock, aviso, valor y equivalencia kg ↔ medida (D-4). Filtros por concepto o código, lugar y grupo, «Solo con aviso» y «Ver descatalogados». Resumen por lugar; clic en un lugar filtra la lista | 1 |
-| `scrArticulo.pa.yaml` | Ficha, historial de compras, calculadora, alta y edición | 1 y 2 |
+| `scrArticulo.pa.yaml` | Ficha (CU-02): stock, datos, calculadora kg ↔ medida, pestañas Compras (sin STOCK synergy, filtro por proveedor) y Salidas, y botón «Recalcular» (flujo `StockRecalcular`). Lee los movimientos en `colArtMovs` (los 2.000 más recientes). Alta y edición: fase 2 | 1 y 2 |
 | `scrBuscar.pa.yaml` | Movimientos por proveedor o por Job | 1 |
 | `scrEntrada.pa.yaml` | Albarán o factura con varias filas | 2 |
 | `scrSalida.pa.yaml` | Salida desde el stock | 2 |
@@ -17,6 +17,7 @@ Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla anc
 
 1. **App nueva:** Crear > Aplicación de lienzo en blanco, formato **Tableta**. Nombre: `App Control Stock`.
 2. **Datos:** SharePoint > sitio CONTROLTRABAJOSTALLER > `ARTICULOS ALMACEN`, `ENTRADAS ALMACEN`, `PROYECTOS`, `PROVEEDORES`, `PRECIOS HORAS`, `MATERIALES` y `ADMIN ALMACEN`.
+   **Flujos:** panel Power Automate > Agregar flujo > `StockRecalcular` ([guía, sección 4](../stock/flujo-StockTotales.md)). Sin él, el botón «Recalcular» de `scrArticulo` sale en rojo.
 3. **Configuración > General > Límite de filas de datos:** `2000`.
 4. **Fórmulas:** App > propiedad **Formulas**: pega `App.Formulas.es.fx` (Studio en español) o `App.Formulas.fx` (en inglés).
 5. **Pantallas:** copia cada `.pa.yaml` y pégalo en la vista de árbol (clic derecho sobre la lista de pantallas > **Pegar**). Pega todas antes de revisar errores, porque se llaman entre sí.
@@ -29,6 +30,7 @@ Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla anc
 |---|---|---|
 | `colArticulos` | `scrStock`, botón Recargar (al entrar, si está vacía) | Todos los artículos con las columnas de ARTICULOS ALMACEN que usa la app, más `Lugar`, `Grupo`, `Stock`, `Rho`, `Aviso` (0, 1 naranja, 2 rojo), `Valor`, `Oculto`, `PesoUnidad` y `Equivalencia`. La usan también `scrArticulo` y las pantallas de entrada y salida |
 | `colMateriales` | Igual | MATERIALES: `ID`, `Title`, `PesoEspecifico` |
+| `colArtMovs` | `scrArticulo`, al entrar y tras «Recalcular» | Movimientos del artículo (filtro por `CODIGO.Id`, delegable), ordenados por fecha descendente. Si hay más de 2.000, solo los más recientes |
 
 Si un bloque de carga llega a 2.000 artículos, la app avisa: hay que partir ese bloque en `btnStoCargar`.
 
