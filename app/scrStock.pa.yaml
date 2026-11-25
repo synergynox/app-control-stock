@@ -222,7 +222,7 @@ Screens:
             PressedFill: =nfColorClaro
             Text: =If(varStoVerOcultos, "✓ Ver descatalogados", "Ver descatalogados")
             Tooltip: ="Incluye los artículos con lugar «descatalogado» o «CANCELADO»"
-            Width: =170
+            Width: =200
             X: =962
             Y: =80
       - lblStoCabCodigo:
