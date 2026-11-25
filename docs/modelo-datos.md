@@ -18,7 +18,7 @@ Columnas que lee y escribe la app, columnas y listas nuevas, y fórmulas. La est
 
 ## Columnas nuevas en ARTICULOS ALMACEN
 
-Se añaden; no se toca ninguna columna existente. Las crea `scripts/03-Columnas-Listas.ps1`. Ya existen en las copias de prueba `ARTICULOS ALMACEN PRUEBA`, `MATERIALES PRUEBA` y `ADMIN ALMACEN PRUEBA` (21/11/2026). En las listas reales todavía no (T-12).
+Se añaden; no se toca ninguna columna existente. Las crea `scripts/03-Columnas-Listas.ps1`. Existen en las copias de prueba `ARTICULOS ALMACEN PRUEBA`, `MATERIALES PRUEBA` y `ADMIN ALMACEN PRUEBA` (21/11/2026) y en las listas reales (25/11/2026).
 
 | Visible | Interno | Tipo | Escribe | Uso |
 |---|---|---|---|---|

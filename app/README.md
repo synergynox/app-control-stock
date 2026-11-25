@@ -1,11 +1,11 @@
 # App Control Stock (Power Apps)
 
-Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla ancha) para el navegador del PC (D-8). Solo controles clásicos. Las pantallas se construyen por fases ([plan-lanzamiento.md](../docs/plan-lanzamiento.md)); todavía no hay ninguna.
+Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla ancha) para el navegador del PC (D-8). Solo controles clásicos. Las pantallas se construyen por fases ([plan-lanzamiento.md](../docs/plan-lanzamiento.md)). Hechas: fórmulas y `scrStock`.
 
 | Fichero | Qué es | Fase |
 |---|---|---|
-| `App.Formulas.fx` / `App.Formulas.es.fx` | Fórmulas con nombre: colores, `nfEsAdmin` (permisos, D-5), conversión kg ↔ medida (D-4) | 1 |
-| `scrStock.pa.yaml` | Inicio: stock con filtros, resumen por lugar y avisos | 1 |
+| `App.Formulas.fx` / `App.Formulas.es.fx` | Fórmulas con nombre: colores, `nfEsAdmin` (permisos, D-5), valores fijos (`nfIdStockSynergy`, Jobs `1111` y `6969`, margen 40 %) y `nfLugaresOcultos`. La versión `.es` la genera `Generar-Formulas.ps1`, que también cambia el punto decimal por coma | 1 |
+| `scrStock.pa.yaml` | Inicio (CU-01): carga los artículos en `colArticulos` (4 bloques por el primer carácter del código, una vez por sesión), con stock, aviso, valor y equivalencia kg ↔ medida (D-4). Filtros por concepto o código, lugar y grupo, «Solo con aviso» y «Ver descatalogados». Resumen por lugar; clic en un lugar filtra la lista | 1 |
 | `scrArticulo.pa.yaml` | Ficha, historial de compras, calculadora, alta y edición | 1 y 2 |
 | `scrBuscar.pa.yaml` | Movimientos por proveedor o por Job | 1 |
 | `scrEntrada.pa.yaml` | Albarán o factura con varias filas | 2 |
@@ -23,9 +23,19 @@ Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla anc
 6. **App > StartScreen:** `=scrStock`. Borra `Screen1`.
 7. Guarda y publica.
 
+## Colecciones
+
+| Colección | Dónde se carga | Qué tiene |
+|---|---|---|
+| `colArticulos` | `scrStock`, botón Recargar (al entrar, si está vacía) | Todos los artículos con las columnas de ARTICULOS ALMACEN que usa la app, más `Lugar`, `Grupo`, `Stock`, `Rho`, `Aviso` (0, 1 naranja, 2 rojo), `Valor`, `Oculto`, `PesoUnidad` y `Equivalencia`. La usan también `scrArticulo` y las pantallas de entrada y salida |
+| `colMateriales` | Igual | MATERIALES: `ID`, `Title`, `PesoEspecifico` |
+
+Si un bloque de carga llega a 2.000 artículos, la app avisa: hay que partir ese bloque en `btnStoCargar`.
+
 ## Convenciones (heredadas de App Taller)
 
 - Las columnas se escriben con el nombre interno; Studio las muestra con el visible. Si un nombre interno empieza por `_`, Studio no lo reconoce y se usa el visible.
+- En los `.pa.yaml`, una fórmula que contenga `: ` (por ejemplo `{Value: …}` o `"Total: "`) va en bloque `|-`; en una sola línea, YAML la confunde con una clave.
 - Los ficheros `.pa.yaml` usan siempre la sintaxis inglesa (`,`). Las fórmulas que se escriben a mano en un Studio en español usan `;` y `;;`, y los decimales llevan coma.
 - Números con formato es-ES (coma decimal).
 - `<>` no es delegable en SharePoint: va en un `Filter` exterior.

@@ -1,0 +1,534 @@
+Screens:
+  scrStock:
+    Properties:
+      Fill: =nfColorFondo
+      OnVisible: |-
+        =// Los artículos se cargan una vez por sesión; «Recargar» los vuelve a leer
+        If(IsEmpty(colArticulos), Select(btnStoCargar))
+    Children:
+      - recStoBarra:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =nfColor
+            Height: =64
+            Width: =Parent.Width
+      - lblStoTitulo:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfBlanco
+            FontWeight: =FontWeight.Semibold
+            Height: =64
+            Size: =20
+            Text: ="Stock del almacén"
+            Width: =320
+            X: =24
+      - lblStoPerfil:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfBlanco
+            Height: =64
+            Size: =11
+            Text: =If(nfEsAdmin, "Administración", "Consulta")
+            Width: =160
+            X: =344
+      - btnStoCargar:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =nfBlanco
+            Color: =nfBlanco
+            DisplayMode: =If(varStoCargando, DisplayMode.Disabled, DisplayMode.Edit)
+            Fill: =nfColorOscuro
+            Height: =40
+            HoverFill: =ColorFade(nfColorOscuro, -15%)
+            OnSelect: |-
+              =// ARTICULOS ALMACEN tiene más de 2.000 artículos (4.547 a 25/11/2026): se carga en 4 bloques por el primer carácter
+              // del CODIGO. StartsWith con el texto escrito es delegable (como colHistorico en App Taller).
+              // Bloques a 25/11/2026: 0-3 1.616, 4-7 1.067, 8-9 1.023, letras unos 840.
+              // Si un bloque llega a 2.000 (límite de filas), faltan artículos: se avisa y hay que partir ese bloque.
+              // Un código que empiece por otro carácter (espacio, símbolo) no se carga.
+              // Stock y último precio: los guarda el flujo StockTotales (D-15); aquí solo se leen.
+              Set(varStoCargando, true);
+              Set(varStoLleno, false);
+              ClearCollect(colMateriales, ShowColumns(MATERIALES, ID, Title, PesoEspecifico));
+              Clear(colArtBruto);
+              With(
+                  {b: ShowColumns(
+                      Filter('ARTICULOS ALMACEN',
+                          StartsWith(CODIGO, "0") || StartsWith(CODIGO, "1") || StartsWith(CODIGO, "2") || StartsWith(CODIGO, "3")),
+                      ID, CODIGO, CONCEPTO, CONCEPTO2, Campo1, LUGAR, MEDIDA, StockActual, UltimoPrecio, UltimoProveedor,
+                      FechaStock, StockMinimo, Material, Forma, Medida1, Medida2)},
+                  Collect(colArtBruto, b); If(CountRows(b) >= 2000, Set(varStoLleno, true))
+              );
+              With(
+                  {b: ShowColumns(
+                      Filter('ARTICULOS ALMACEN',
+                          StartsWith(CODIGO, "4") || StartsWith(CODIGO, "5") || StartsWith(CODIGO, "6") || StartsWith(CODIGO, "7")),
+                      ID, CODIGO, CONCEPTO, CONCEPTO2, Campo1, LUGAR, MEDIDA, StockActual, UltimoPrecio, UltimoProveedor,
+                      FechaStock, StockMinimo, Material, Forma, Medida1, Medida2)},
+                  Collect(colArtBruto, b); If(CountRows(b) >= 2000, Set(varStoLleno, true))
+              );
+              With(
+                  {b: ShowColumns(
+                      Filter('ARTICULOS ALMACEN', StartsWith(CODIGO, "8") || StartsWith(CODIGO, "9")),
+                      ID, CODIGO, CONCEPTO, CONCEPTO2, Campo1, LUGAR, MEDIDA, StockActual, UltimoPrecio, UltimoProveedor,
+                      FechaStock, StockMinimo, Material, Forma, Medida1, Medida2)},
+                  Collect(colArtBruto, b); If(CountRows(b) >= 2000, Set(varStoLleno, true))
+              );
+              With(
+                  {b: ShowColumns(
+                      Filter('ARTICULOS ALMACEN',
+                          StartsWith(CODIGO, "A") || StartsWith(CODIGO, "B") || StartsWith(CODIGO, "C") || StartsWith(CODIGO, "D") ||
+                          StartsWith(CODIGO, "E") || StartsWith(CODIGO, "F") || StartsWith(CODIGO, "G") || StartsWith(CODIGO, "H") ||
+                          StartsWith(CODIGO, "I") || StartsWith(CODIGO, "J") || StartsWith(CODIGO, "K") || StartsWith(CODIGO, "L") ||
+                          StartsWith(CODIGO, "M") || StartsWith(CODIGO, "N") || StartsWith(CODIGO, "O") || StartsWith(CODIGO, "P") ||
+                          StartsWith(CODIGO, "Q") || StartsWith(CODIGO, "R") || StartsWith(CODIGO, "S") || StartsWith(CODIGO, "T") ||
+                          StartsWith(CODIGO, "U") || StartsWith(CODIGO, "V") || StartsWith(CODIGO, "W") || StartsWith(CODIGO, "X") ||
+                          StartsWith(CODIGO, "Y") || StartsWith(CODIGO, "Z")),
+                      ID, CODIGO, CONCEPTO, CONCEPTO2, Campo1, LUGAR, MEDIDA, StockActual, UltimoPrecio, UltimoProveedor,
+                      FechaStock, StockMinimo, Material, Forma, Medida1, Medida2)},
+                  Collect(colArtBruto, b); If(CountRows(b) >= 2000, Set(varStoLleno, true))
+              );
+              // Columnas calculadas (docs/modelo-datos.md):
+              //   Lugar, Grupo: LUGAR es Campo1 y GRUPO es LUGAR (nombres internos cruzados)
+              //   Stock: StockActual (vacío = 0). Aviso (D-1): 2 = stock <= 0 (rojo), 1 = stock <= StockMinimo (naranja), 0 = sin aviso
+              //   Valor: stock positivo × último precio. Oculto: LUGAR descatalogado o CANCELADO
+              //   PesoUnidad (D-4): kg/m² (plancha) o kg/m (resto), con el peso específico de MATERIALES. 0 si no es plancha ni macizo
+              ClearCollect(
+                  colArticulos,
+                  AddColumns(
+                      AddColumns(
+                          AddColumns(
+                              colArtBruto,
+                              Lugar, Coalesce(Trim(Campo1), "(sin lugar)"),
+                              Grupo, Coalesce(Trim(LUGAR), "(sin grupo)"),
+                              Stock, Coalesce(StockActual, 0),
+                              Rho, Coalesce(LookUp(colMateriales, ID = Material.Id, PesoEspecifico), 0)
+                          ),
+                          Aviso, If(Stock <= 0, 2, !IsBlank(StockMinimo) && Stock <= StockMinimo, 1, 0),
+                          Valor, Max(Stock, 0) * Coalesce(UltimoPrecio, 0),
+                          Oculto, Lower(Lugar) in nfLugaresOcultos,
+                          PesoUnidad, Coalesce(
+                              Switch(
+                                  Forma.Value,
+                                  "PLANCHA", Medida1 * Rho,
+                                  "REDONDO", Pi() / 4 * Medida1 ^ 2 * Rho / 1000,
+                                  "CUADRADO", Medida1 ^ 2 * Rho / 1000,
+                                  "PLETINA", Medida1 * Medida2 * Rho / 1000,
+                                  "HEXAGONAL", 0.866 * Medida1 ^ 2 * Rho / 1000,
+                                  "TUBO", Pi() * (Medida1 - Medida2) * Medida2 * Rho / 1000
+                              ),
+                              0
+                          )
+                      ),
+                      Equivalencia, If(
+                          PesoUnidad > 0,
+                          "≈ " & Text(Stock / PesoUnidad, "#,##0.00", "es-ES") & If(Forma.Value = "PLANCHA", " m²", " m"),
+                          ""
+                      )
+                  )
+              );
+              Clear(colArtBruto);
+              If(varStoLleno, Notify("Algún bloque de artículos llegó a 2.000 y pueden faltar algunos. Avisa a desarrollo.", NotificationType.Warning));
+              Set(varStoCargando, false)
+            PressedFill: =nfColorOscuro
+            Text: =If(varStoCargando, "Cargando…", "Recargar")
+            Tooltip: ="Vuelve a leer los artículos y su stock"
+            Width: =140
+            X: =Parent.Width - 164
+            Y: =12
+      - txtStoBuscar:
+          Control: Classic/TextInput@2.3.2
+          Properties:
+            BorderColor: =nfColorBorde
+            DelayOutput: =true
+            Default: =""
+            Height: =40
+            HintText: ="Buscar por concepto o código"
+            Width: =320
+            X: =24
+            Y: =80
+      - cmbStoLugar:
+          Control: Classic/ComboBox@2.4.0
+          Properties:
+            BorderColor: =nfColorBorde
+            DefaultSelectedItems: |-
+              =Table({Value: Coalesce(varStoLugarClic, "Todos los lugares")})
+            DisplayFields: =["Value"]
+            Height: =40
+            InputTextPlaceholder: ="Lugar"
+            IsSearchable: =false
+            Items: |-
+              =Ungroup(
+                  Table(
+                      {t: Table({Value: "Todos los lugares"})},
+                      {t: Sort(Distinct(Filter(colArticulos, varStoVerOcultos || !Oculto), Lugar), Value)}
+                  ),
+                  t
+              )
+            SearchFields: =["Value"]
+            SelectMultiple: =false
+            Width: =200
+            X: =356
+            Y: =80
+      - cmbStoGrupo:
+          Control: Classic/ComboBox@2.4.0
+          Properties:
+            BorderColor: =nfColorBorde
+            DefaultSelectedItems: |-
+              =Table({Value: "Todos los grupos"})
+            DisplayFields: =["Value"]
+            Height: =40
+            InputTextPlaceholder: ="Grupo"
+            IsSearchable: =false
+            Items: |-
+              =Ungroup(
+                  Table(
+                      {t: Table({Value: "Todos los grupos"})},
+                      {t: Sort(Distinct(Filter(colArticulos, varStoVerOcultos || !Oculto), Grupo), Value)}
+                  ),
+                  t
+              )
+            SearchFields: =["Value"]
+            SelectMultiple: =false
+            Width: =220
+            X: =568
+            Y: =80
+      - btnStoAvisos:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =If(varStoSoloAvisos, nfColorOscuro, nfColorBorde)
+            Color: =If(varStoSoloAvisos, nfBlanco, nfColorOscuro)
+            Fill: =If(varStoSoloAvisos, nfColorOscuro, nfBlanco)
+            Height: =40
+            HoverColor: =If(varStoSoloAvisos, nfBlanco, nfColorOscuro)
+            HoverFill: =If(varStoSoloAvisos, ColorFade(nfColorOscuro, -15%), nfColorClaro)
+            OnSelect: =Set(varStoSoloAvisos, !varStoSoloAvisos)
+            PressedFill: =nfColorClaro
+            Text: =If(varStoSoloAvisos, "✓ Solo con aviso", "Solo con aviso")
+            Tooltip: ="Solo los artículos con stock ≤ 0 o por debajo del mínimo"
+            Width: =150
+            X: =800
+            Y: =80
+      - btnStoOcultos:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =If(varStoVerOcultos, nfColorOscuro, nfColorBorde)
+            Color: =If(varStoVerOcultos, nfBlanco, nfColorOscuro)
+            Fill: =If(varStoVerOcultos, nfColorOscuro, nfBlanco)
+            Height: =40
+            HoverColor: =If(varStoVerOcultos, nfBlanco, nfColorOscuro)
+            HoverFill: =If(varStoVerOcultos, ColorFade(nfColorOscuro, -15%), nfColorClaro)
+            OnSelect: =Set(varStoVerOcultos, !varStoVerOcultos)
+            PressedFill: =nfColorClaro
+            Text: =If(varStoVerOcultos, "✓ Ver descatalogados", "Ver descatalogados")
+            Tooltip: ="Incluye los artículos con lugar «descatalogado» o «CANCELADO»"
+            Width: =170
+            X: =962
+            Y: =80
+      - lblStoCabCodigo:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =11
+            Text: ="Código"
+            Width: =110
+            X: =galStock.X + 12
+            Y: =132
+      - lblStoCabConcepto:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =11
+            Text: ="Concepto"
+            Width: =galStock.TemplateWidth - 780
+            X: =galStock.X + 130
+            Y: =132
+      - lblStoCabLugar:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =11
+            Text: ="Lugar / grupo"
+            Width: =150
+            X: =galStock.X + galStock.TemplateWidth - 640
+            Y: =132
+      - lblStoCabStock:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =11
+            Text: ="Stock"
+            Width: =140
+            X: =galStock.X + galStock.TemplateWidth - 482
+            Y: =132
+      - lblStoCabPrecio:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =11
+            Text: ="Últ. precio"
+            Width: =100
+            X: =galStock.X + galStock.TemplateWidth - 334
+            Y: =132
+      - lblStoCabProveedor:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            FontWeight: =FontWeight.Semibold
+            Height: =28
+            Size: =11
+            Text: ="Últ. proveedor"
+            Width: =210
+            X: =galStock.X + galStock.TemplateWidth - 222
+            Y: =132
+      - galStock:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Properties:
+            BorderColor: =nfColorBorde
+            BorderThickness: =1
+            Fill: =nfBlanco
+            Height: =Parent.Height - 164 - 44
+            Items: |-
+              =SortByColumns(
+                  Filter(
+                      colArticulos,
+                      varStoVerOcultos || !Oculto,
+                      IsBlank(cmbStoLugar.Selected.Value) || cmbStoLugar.Selected.Value = "Todos los lugares" || Lugar = cmbStoLugar.Selected.Value,
+                      IsBlank(cmbStoGrupo.Selected.Value) || cmbStoGrupo.Selected.Value = "Todos los grupos" || Grupo = cmbStoGrupo.Selected.Value,
+                      !varStoSoloAvisos || Aviso > 0,
+                      IsBlank(Trim(txtStoBuscar.Text)) ||
+                          Trim(txtStoBuscar.Text) in CONCEPTO ||
+                          StartsWith(CODIGO, Trim(txtStoBuscar.Text))
+                  ),
+                  "CONCEPTO", SortOrder.Ascending
+              )
+            OnSelect: |-
+              =// La ficha del artículo (scrArticulo) llega en el paso 3: entonces se añade Navigate(scrArticulo)
+              Set(varArticulo, ThisItem)
+            TemplatePadding: =0
+            TemplateSize: =48
+            Width: =Parent.Width - 48 - 316
+            X: =24
+            Y: =164
+          Children:
+            - lblStoFilaCodigo:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, nfColorTexto)
+                  FontWeight: =FontWeight.Semibold
+                  Height: =Parent.TemplateHeight
+                  OnSelect: =Select(Parent)
+                  Size: =11
+                  Text: =ThisItem.CODIGO
+                  Width: =110
+                  X: =12
+            - lblStoFilaConcepto:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, nfColorTexto)
+                  Height: =Parent.TemplateHeight
+                  OnSelect: =Select(Parent)
+                  Size: =11
+                  Text: =ThisItem.CONCEPTO
+                  Tooltip: =ThisItem.CONCEPTO & If(IsBlank(ThisItem.CONCEPTO2), "", Char(10) & ThisItem.CONCEPTO2)
+                  Width: =Parent.TemplateWidth - 780
+                  X: =130
+            - lblStoFilaLugar:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTextoSuave
+                  Height: =Parent.TemplateHeight
+                  OnSelect: =Select(Parent)
+                  Size: =10
+                  Text: =ThisItem.Lugar & Char(10) & ThisItem.Grupo
+                  Width: =150
+                  X: =Parent.TemplateWidth - 640
+            - lblStoFilaStock:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Right
+                  Color: =Switch(ThisItem.Aviso, 2, nfColorError, 1, nfColorAviso, nfColorTexto)
+                  FontWeight: =If(ThisItem.Aviso > 0, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Parent.TemplateHeight
+                  OnSelect: =Select(Parent)
+                  Size: =11
+                  Text: |-
+                    =Text(ThisItem.Stock, "#,##0.###", "es-ES") & " " & ThisItem.MEDIDA &
+                    If(IsBlank(ThisItem.Equivalencia), "", Char(10) & ThisItem.Equivalencia)
+                  Tooltip: |-
+                    =If(IsBlank(ThisItem.StockMinimo), "Sin stock mínimo", "Stock mínimo: " & Text(ThisItem.StockMinimo, "#,##0.###", "es-ES")) &
+                    Char(10) & If(IsBlank(ThisItem.FechaStock), "Stock sin calcular", "Calculado el " & Text(ThisItem.FechaStock, "dd/mm/yyyy hh:mm"))
+                  Width: =140
+                  X: =Parent.TemplateWidth - 482
+            - lblStoFilaPrecio:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Right
+                  Color: =nfColorTexto
+                  Height: =Parent.TemplateHeight
+                  OnSelect: =Select(Parent)
+                  Size: =11
+                  Text: =If(IsBlank(ThisItem.UltimoPrecio), "—", Text(ThisItem.UltimoPrecio, "#,##0.00## €", "es-ES"))
+                  Width: =100
+                  X: =Parent.TemplateWidth - 334
+            - lblStoFilaProveedor:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTextoSuave
+                  Height: =Parent.TemplateHeight
+                  OnSelect: =Select(Parent)
+                  Size: =10
+                  Text: =ThisItem.UltimoProveedor
+                  Tooltip: =ThisItem.UltimoProveedor
+                  Width: =210
+                  X: =Parent.TemplateWidth - 222
+            - recStoFilaSeparador:
+                Control: Rectangle@2.3.0
+                Properties:
+                  Fill: =nfColorBorde
+                  Height: =1
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - 1
+      - lblStoTotal:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            Height: =36
+            Size: =11
+            Text: |-
+              =Text(CountRows(galStock.AllItems), "#,##0", "es-ES") & " artículos  ·  " &
+              CountRows(Filter(galStock.AllItems, Aviso = 2)) & " sin stock  ·  " &
+              CountRows(Filter(galStock.AllItems, Aviso = 1)) & " bajo mínimo"
+            Width: =420
+            X: =24
+            Y: =Parent.Height - 40
+      - lblStoLeyenda:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Right
+            Color: =nfColorTextoSuave
+            Height: =36
+            Size: =10
+            Text: |-
+              ="Rojo: stock ≤ 0.  Naranja: stock ≤ mínimo.  El stock se actualiza solo con cada movimiento (unos minutos de retraso)."
+            Width: =galStock.Width - 440
+            X: =galStock.X + 440
+            Y: =Parent.Height - 40
+      - recStoResumen:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =nfColorBorde
+            BorderThickness: =1
+            Fill: =nfBlanco
+            Height: =Parent.Height - 132 - 44
+            Width: =300
+            X: =Parent.Width - 324
+            Y: =132
+      - lblStoResTitulo:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTexto
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =12
+            Text: ="Resumen por lugar"
+            Width: =276
+            X: =recStoResumen.X + 12
+            Y: =recStoResumen.Y + 4
+      - lblStoResCab:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTextoSuave
+            Height: =24
+            Size: =10
+            Text: ="Con los filtros de la lista. Valor = stock × último precio"
+            Width: =276
+            X: =recStoResumen.X + 12
+            Y: =recStoResumen.Y + 36
+      - galStoResumen:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0
+          Properties:
+            Height: =recStoResumen.Height - 64 - 48
+            Items: |-
+              =SortByColumns(
+                  AddColumns(
+                      GroupBy(galStock.AllItems, Lugar, Filas),
+                      Articulos, CountRows(Filas),
+                      ValorLugar, Sum(Filas, Valor)
+                  ),
+                  "ValorLugar", SortOrder.Descending
+              )
+            TemplatePadding: =0
+            TemplateSize: =36
+            Width: =recStoResumen.Width - 2
+            X: =recStoResumen.X + 1
+            Y: =recStoResumen.Y + 64
+          Children:
+            - lblStoResLugar:
+                Control: Label@2.5.1
+                Properties:
+                  Color: =nfColorTexto
+                  Height: =Parent.TemplateHeight
+                  OnSelect: |-
+                    =// Clic en un lugar: filtra la lista por ese lugar (cmbStoLugar toma varStoLugarClic al reiniciarse)
+                    Set(varStoLugarClic, ThisItem.Lugar);
+                    Reset(cmbStoLugar)
+                  Size: =11
+                  Text: =ThisItem.Lugar
+                  Tooltip: =ThisItem.Lugar
+                  Width: =130
+                  X: =12
+            - lblStoResArticulos:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Right
+                  Color: =nfColorTextoSuave
+                  Height: =Parent.TemplateHeight
+                  Size: =10
+                  Text: =Text(ThisItem.Articulos, "#,##0", "es-ES")
+                  Width: =50
+                  X: =142
+            - lblStoResValor:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Right
+                  Color: =nfColorTexto
+                  Height: =Parent.TemplateHeight
+                  Size: =11
+                  Text: =Text(ThisItem.ValorLugar, "#,##0 €", "es-ES")
+                  Width: =92
+                  X: =Parent.TemplateWidth - 104
+            - recStoResSeparador:
+                Control: Rectangle@2.3.0
+                Properties:
+                  Fill: =nfColorBorde
+                  Height: =1
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - 1
+      - lblStoResTotal:
+          Control: Label@2.5.1
+          Properties:
+            Color: =nfColorTexto
+            FontWeight: =FontWeight.Semibold
+            Height: =40
+            Size: =12
+            Text: |-
+              ="Total: " & Text(Sum(galStock.AllItems, Valor), "#,##0 €", "es-ES")
+            Width: =276
+            X: =recStoResumen.X + 12
+            Y: =recStoResumen.Y + recStoResumen.Height - 44
