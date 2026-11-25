@@ -18,7 +18,7 @@
     MATERIALES: Title + PesoEspecifico. ADMIN ALMACEN: Title (correo, en minúsculas).
 
     Lo que ya existe no se toca, así que se puede volver a lanzar. Sin -Confirmar solo muestra
-    lo que haría. Las listas nuevas se crean vacías: los pesos (T-04) y los correos (T-05) los
+    lo que haría. Las listas nuevas se crean vacías: los pesos (T-04) y los correos los
     rellena negocio a mano; los correos no van al repositorio.
 
 .EXAMPLE

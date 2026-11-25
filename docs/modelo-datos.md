@@ -45,7 +45,7 @@ Se añaden; no se toca ninguna columna existente. Las crea `scripts/03-Columnas-
 |---|---|---|---|
 | Título | `Title` | Text (255) | Correo en minúsculas. Una fila por cuenta de administración |
 
-La leen todos; la editan solo negocio. Los correos no van al repositorio (T-05).
+La leen todos; la editan solo negocio. Los correos no van al repositorio.
 
 ## Qué escribe la app en ENTRADAS ALMACEN
 
