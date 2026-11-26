@@ -4,7 +4,8 @@ Screens:
       Fill: =nfColorFondo
       OnVisible: |-
         =// varArticulo: fila de colArticulos elegida en scrStock.
-        // Movimientos del artículo: filtro por el Id del lookup CODIGO (delegable, CODIGO indexada) y orden por FECHA
+        // Movimientos del artículo: filtro por el valor del lookup CODIGO (delegable, como 'JOB NUMBER'.Value en App Taller;
+        // CODIGO.Id = … NO delega y solo miraba las 2.000 filas más antiguas). Orden por FECHA
         // descendente, así que si hay más de 2.000 llegan los 2.000 más recientes (0000 y 8110 tienen más).
         Set(varArtPestana, "Compras");
         Reset(cmbArtProveedor);
@@ -14,7 +15,7 @@ Screens:
         ClearCollect(
             colArtMovs,
             SortByColumns(
-                Filter('ENTRADAS ALMACEN', CODIGO.Id = varArticulo.ID),
+                Filter('ENTRADAS ALMACEN', CODIGO.Value = varArticulo.CODIGO),
                 "FECHA", SortOrder.Descending,
                 "ID", SortOrder.Descending
             )
@@ -114,7 +115,7 @@ Screens:
               ClearCollect(
                   colArtMovs,
                   SortByColumns(
-                      Filter('ENTRADAS ALMACEN', CODIGO.Id = varArticulo.ID),
+                      Filter('ENTRADAS ALMACEN', CODIGO.Value = varArticulo.CODIGO),
                       "FECHA", SortOrder.Descending,
                       "ID", SortOrder.Descending
                   )

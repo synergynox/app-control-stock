@@ -30,7 +30,7 @@ Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla anc
 |---|---|---|
 | `colArticulos` | `scrStock`, botón Recargar (al entrar, si está vacía) | Todos los artículos con las columnas de ARTICULOS ALMACEN que usa la app, más `Lugar`, `Grupo`, `Stock`, `Rho`, `Aviso` (0, 1 naranja, 2 rojo), `Valor`, `Oculto`, `PesoUnidad` y `Equivalencia`. La usan también `scrArticulo` y las pantallas de entrada y salida |
 | `colMateriales` | Igual | MATERIALES: `ID`, `Title`, `PesoEspecifico` |
-| `colArtMovs` | `scrArticulo`, al entrar y tras «Recalcular» | Movimientos del artículo (filtro por `CODIGO.Id`, delegable), ordenados por fecha descendente. Si hay más de 2.000, solo los más recientes |
+| `colArtMovs` | `scrArticulo`, al entrar y tras «Recalcular» | Movimientos del artículo (filtro por `CODIGO.Value`, delegable), ordenados por fecha descendente. Si hay más de 2.000, solo los más recientes |
 
 Si un bloque de carga llega a 2.000 artículos, la app avisa: hay que partir ese bloque en `btnStoCargar`.
 
@@ -41,6 +41,7 @@ Si un bloque de carga llega a 2.000 artículos, la app avisa: hay que partir ese
 - Los ficheros `.pa.yaml` usan siempre la sintaxis inglesa (`,`). Las fórmulas que se escriben a mano en un Studio en español usan `;` y `;;`, y los decimales llevan coma.
 - Números con formato es-ES (coma decimal).
 - `<>` no es delegable en SharePoint: va en un `Filter` exterior.
+- Filtrar por el Id de un lookup (`CODIGO.Id = …`) **no** es delegable (aviso amarillo): se filtra por su valor, `CODIGO.Value = varArticulo.CODIGO`, como `'JOB NUMBER'.Value` en App Taller.
 - No se usan las columnas calculadas (`SALIDA COSTE`, `coste SY`): el coste se calcula con `CANTIDAD × PRECIO × (1 − DESCUENTO)`.
 - De PRECIOS HORAS solo se muestra `NOMBRE`; nunca columnas de coste ni datos personales.
 - Si cambias algo en Studio, copia el código de la pantalla (clic derecho > **Ver código**) y actualiza aquí el fichero.
