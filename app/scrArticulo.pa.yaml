@@ -4,22 +4,15 @@ Screens:
       Fill: =nfColorFondo
       OnVisible: |-
         =// varArticulo: fila de colArticulos elegida en scrStock.
-        // Movimientos del artículo: filtro por el valor del lookup CODIGO (delegable, como 'JOB NUMBER'.Value en App Taller;
-        // CODIGO.Id = … NO delega y solo miraba las 2.000 filas más antiguas). Orden por FECHA
-        // descendente, así que si hay más de 2.000 llegan los 2.000 más recientes (0000 y 8110 tienen más).
+        // Movimientos del artículo: filtro por el valor del lookup CODIGO (delegable, como 'JOB NUMBER'.Value en App Taller).
+        // CODIGO.Id = … NO delega (solo miraba las 2.000 filas más antiguas), y ordenar en la consulta (SortByColumns) supera el
+        // umbral de 5.000 de la lista: se ordena después, en galArtMovs. Límite: 2.000 movimientos (0000 y 8110 tienen más).
         Set(varArtPestana, "Compras");
         Reset(cmbArtProveedor);
         Reset(txtArtKg);
         Reset(txtArtLargo);
         Reset(txtArtAncho);
-        ClearCollect(
-            colArtMovs,
-            SortByColumns(
-                Filter('ENTRADAS ALMACEN', CODIGO.Value = varArticulo.CODIGO),
-                "FECHA", SortOrder.Descending,
-                "ID", SortOrder.Descending
-            )
-        )
+        ClearCollect(colArtMovs, Filter('ENTRADAS ALMACEN', CODIGO.Value = varArticulo.CODIGO))
     Children:
       - recArtBarra:
           Control: Rectangle@2.3.0
@@ -112,14 +105,7 @@ Screens:
           Properties:
             OnSelect: |-
               =// Oculto: vuelve a leer los movimientos (lo usa Recalcular). Misma consulta que OnVisible.
-              ClearCollect(
-                  colArtMovs,
-                  SortByColumns(
-                      Filter('ENTRADAS ALMACEN', CODIGO.Value = varArticulo.CODIGO),
-                      "FECHA", SortOrder.Descending,
-                      "ID", SortOrder.Descending
-                  )
-              )
+              ClearCollect(colArtMovs, Filter('ENTRADAS ALMACEN', CODIGO.Value = varArticulo.CODIGO))
             Text: ="Recargar movimientos"
             Visible: =false
             Width: =10
@@ -375,7 +361,7 @@ Screens:
             Color: =nfColorAviso
             Height: =40
             Size: =10
-            Text: ="Solo los 2.000 movimientos más recientes"
+            Text: ="Más de 2.000 movimientos (pueden faltar algunos)"
             Visible: =CountRows(colArtMovs) >= 2000
             Width: =220
             X: =832
@@ -458,7 +444,7 @@ Screens:
             Fill: =nfBlanco
             Height: =Parent.Height - 164 - 24
             Items: |-
-              =If(
+              =SortByColumns(If(
                   varArtPestana = "Compras",
                   // Historial de compras (CU-02, D-9): filas con entrada que no son de STOCK synergy.
                   // <> no es delegable, pero se filtra sobre colArtMovs, que ya está en memoria.
@@ -471,7 +457,7 @@ Screens:
                   ),
                   // Salidas: filas con cantidad de salida (también las compras directas a un Job, D-13)
                   Filter(colArtMovs, CANTIDADSALIDA > 0)
-              )
+              ), "FECHA", SortOrder.Descending, "ID", SortOrder.Descending)
             TemplatePadding: =0
             TemplateSize: =44
             Width: =Parent.Width - 448 - 24

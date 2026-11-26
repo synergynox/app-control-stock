@@ -30,7 +30,7 @@ Código de la app de lienzo **App Control Stock**. Formato tableta (pantalla anc
 |---|---|---|
 | `colArticulos` | `scrStock`, botón Recargar (al entrar, si está vacía) | Todos los artículos con las columnas de ARTICULOS ALMACEN que usa la app, más `Lugar`, `Grupo`, `Stock`, `Rho`, `Aviso` (0, 1 naranja, 2 rojo), `Valor`, `Oculto`, `PesoUnidad` y `Equivalencia`. La usan también `scrArticulo` y las pantallas de entrada y salida |
 | `colMateriales` | Igual | MATERIALES: `ID`, `Title`, `PesoEspecifico` |
-| `colArtMovs` | `scrArticulo`, al entrar y tras «Recalcular» | Movimientos del artículo (filtro por `CODIGO.Value`, delegable), ordenados por fecha descendente. Si hay más de 2.000, solo los más recientes |
+| `colArtMovs` | `scrArticulo`, al entrar y tras «Recalcular» | Movimientos del artículo (filtro por `CODIGO.Value`, delegable). Sin orden en la consulta, porque ordenar en ENTRADAS ALMACEN supera el umbral de 5.000: `galArtMovs` ordena por fecha. Máximo 2.000 movimientos; si hay más, avisa |
 
 Si un bloque de carga llega a 2.000 artículos, la app avisa: hay que partir ese bloque en `btnStoCargar`.
 
